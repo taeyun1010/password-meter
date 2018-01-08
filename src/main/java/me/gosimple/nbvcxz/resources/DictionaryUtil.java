@@ -44,6 +44,7 @@ public class DictionaryUtil
      */
     public static final String eff_large = "eff_large.txt";
 
+    public static final String userdata = "userdata.txt";
     /**
      * Read a resource file with a list of entries (sorted by frequency) and use
      * it to create a ranked dictionary.
@@ -60,6 +61,14 @@ public class DictionaryUtil
         Set<String> unranked_set = new HashSet<>();
 
         String path = "/dictionaries/" + fileName;
+        // String path = fileName;
+        
+        //
+//        
+//        	 System.out.println("Working Directory = " +
+//                     System.getProperty("user.dir"));
+//        
+        //
         try (InputStream is = DictionaryUtil.class.getResourceAsStream(path);
              BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8")))
         {
@@ -100,6 +109,7 @@ public class DictionaryUtil
     {
         Map<String, Integer> ranked = new HashMap<>();
         String path = "/dictionaries/" + fileName;
+       
         try (InputStream is = DictionaryUtil.class.getResourceAsStream(path);
              BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8")))
         {

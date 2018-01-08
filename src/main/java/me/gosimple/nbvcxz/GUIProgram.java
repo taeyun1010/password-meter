@@ -8,7 +8,10 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
-//testing committing
+import me.gosimple.nbvcxz.resources.Dictionary;
+import me.gosimple.nbvcxz.resources.DictionaryUtil;
+import me.gosimple.nbvcxz.resources.Generator;
+
 
 //An AWT GUI program inherits the top-level container java.awt.Frame
 public class GUIProgram extends Frame implements ActionListener, WindowListener {
@@ -18,10 +21,12 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 
 	public TextField tfCount1, tfCount2, tfCount3; // Declare a TextField component
 	private Button btnCount; // Declare a Button component
-	
+	public Nbvcxz nbvcxz;
 
 	// Constructor to setup the GUI components and event handlers
-	public GUIProgram() {
+	public GUIProgram(Nbvcxz nbvcxz2) {
+		nbvcxz = nbvcxz2;
+		
 		setLayout(new FlowLayout()); // "super" Frame sets to FlowLayout
 
 		add(new Label("Username  ")); // "super" Frame adds an anonymous Label
@@ -35,7 +40,7 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		add(tfCount2); // "super" Frame adds TextField
 		
 		add(new Label("Revised Password")); // "super" Frame adds an anonymous Label
-		tfCount3 = new TextField("", 10); // Construct the TextField
+		tfCount3 = new TextField("", 30); // Construct the TextField
 		tfCount3.setEditable(false); // read-only
 		add(tfCount3); // "super" Frame adds TextField
 
@@ -61,34 +66,63 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		String originalpw = tfCount2.getText();
 		//tfCount3.setText(originalpw);
 		
-		InputStream testInput;
-		try {
-			// Create a stream to hold the output
-		    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		    PrintStream ps = new PrintStream(baos);
-		    // IMPORTANT: Save the old System.out!
-		    PrintStream old = System.out;
-		    // Tell Java to use your special stream
-		    System.setOut(ps);
-			
-			testInput = new ByteArrayInputStream("g".getBytes("UTF-8"));
-			System.setIn( testInput );
-			
-		   
-		    // Put things back
-		    System.out.flush();
-		    System.setOut(old);
-		    // Show what happened
-		    String revisedpw = baos.toString();
-		    tfCount3.setText(revisedpw);
-		    
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		InputStream old = System.in;
+		//get path to documents folder
+		 String myDocuments = null;
+
+		 try {
+		     Process p =  Runtime.getRuntime().exec("reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v personal");
+		     p.waitFor();
+
+		     InputStream in = p.getInputStream();
+		     byte[] b = new byte[in.available()];
+		     in.read(b);
+		     in.close();
+
+		     myDocuments = new String(b);
+		     myDocuments = myDocuments.split("\\s\\s+")[4];
+
+		 } catch(Throwable t) {
+		     t.printStackTrace();
+		 }
+
+		 System.out.println(myDocuments);
 		
-		System.setIn( old );
+		
+		
+		Dictionary dic =  new Dictionary("userdata", DictionaryUtil.loadUnrankedDictionary("userdata.txt"), false);
+		String revisedpw = Generator.generatePassphrase("l", 3, dic);
+		 tfCount3.setText(revisedpw);
+		 
+		
+		
+//		InputStream testInput;
+//		try {
+//			// Create a stream to hold the output
+//		    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//		    PrintStream ps = new PrintStream(baos);
+//		    // IMPORTANT: Save the old System.out!
+//		    PrintStream old = System.out;
+//		    // Tell Java to use your special stream
+//		    System.setOut(ps);
+//			
+//			testInput = new ByteArrayInputStream("g".getBytes("UTF-8"));
+//			System.setIn( testInput );
+//			
+//		   
+//		    // Put things back
+//		    System.out.flush();
+//		    System.setOut(old);
+//		    // Show what happened
+//		    String revisedpw = baos.toString();
+//		    tfCount3.setText(revisedpw);
+//		    
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		InputStream old = System.in;
+//		
+//		System.setIn( old );
 		
 	}
 

@@ -111,7 +111,7 @@ public class Nbvcxz
         String input;
         
      // Invoke the constructor (to setup the GUI) by allocating an instance
-	     GUIProgram gui =  new GUIProgram();
+	     GUIProgram gui =  new GUIProgram(nbvcxz);
 
         while (true)
         {
