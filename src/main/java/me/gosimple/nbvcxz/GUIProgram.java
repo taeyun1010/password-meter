@@ -2,13 +2,17 @@ package me.gosimple.nbvcxz;
 
 import java.awt.*;
 import java.awt.event.*; // Using AWT event classes and listener interfaces
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,6 +37,8 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 	public TextField tfCount1, tfCount2, tfCount3; // Declare a TextField component
 	private Button btnCount; // Declare a Button component
 	public Nbvcxz nbvcxz;
+	
+	private PrintWriter writer = null;
 
 	// Constructor to setup the GUI components and event handlers
 	public GUIProgram(Nbvcxz nbvcxz2) {
@@ -97,11 +103,39 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 			t.printStackTrace();
 		}
 
-//		//find all files in myDocuments folder
-//		File dir = new File(myDocuments);
-//		Collection<File> allfiles = FileUtils.listFiles(dir, null, true);
-//		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
-
+		//find all files in myDocuments folder
+		File dir = new File(myDocuments);
+		Collection<File> allfiles = FileUtils.listFiles(dir, null, true);
+		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
+		Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" }, true);
+		
+		
+		try {
+			writer = new PrintWriter("test.txt", "UTF-8");
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		
+		textfiles.forEach(file -> {
+			
+				try {
+					readtxtfile(file, writer);
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+		});
+		
 //		try {
 //			extractpdf(new File("C:\\Users\\User\\Documents\\2017_2_test.pdf"));
 //		} catch (IOException e) {
@@ -175,6 +209,33 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 	      pdDoc.close();
 	}
 
+	
+	public void readtxtfile(File txtfile, PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
+		BufferedReader br = null;
+		
+		
+        try {
+            br = new BufferedReader(new FileReader(txtfile));
+            String line;
+            while ((line = br.readLine()) != null) {
+                //System.out.println(line);
+            	writer.println(line);
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+		
+	}
+	
 	/* WindowEvent handlers */
 	// Called back upon clicking close-window button
 	@Override
