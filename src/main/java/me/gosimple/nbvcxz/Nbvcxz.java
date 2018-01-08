@@ -109,6 +109,9 @@ public class Nbvcxz
         Scanner scanner = new Scanner(System.in);
 
         String input;
+        
+     // Invoke the constructor (to setup the GUI) by allocating an instance
+	     GUIProgram gui =  new GUIProgram();
 
         while (true)
         {
