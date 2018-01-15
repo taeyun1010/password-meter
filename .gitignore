@@ -20,3 +20,4 @@
 *.swp
 *.out
 /.metadata/
+/target/

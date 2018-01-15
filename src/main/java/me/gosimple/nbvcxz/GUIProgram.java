@@ -18,11 +18,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.pdfbox.cos.COSDocument;
-import org.apache.pdfbox.io.RandomAccessRead;
-import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripper;
 
 import me.gosimple.nbvcxz.resources.Dictionary;
 import me.gosimple.nbvcxz.resources.DictionaryUtil;
@@ -111,7 +108,7 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		
 		
 		try {
-			writer = new PrintWriter("test.txt", "UTF-8");
+			writer = new PrintWriter("src/main/resources/dictionaries/userdata.txt", "UTF-8");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -135,22 +132,24 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 				}
 			
 		});
-		
+////		
 //		try {
-//			extractpdf(new File("C:\\Users\\User\\Documents\\2017_2_test.pdf"));
+//			extractpdf(new File("C:\\Users\\User\\Documents\\2016ImpactFactorJCR.pdf"));
 //		} catch (IOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+//		
+		pdffiles.forEach(file -> {
+			try {
+				extractpdf(file, writer);
+			}  catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 		
-//		pdffiles.forEach(file -> {
-//			try {
-//				extractpdf(file);
-//			}  catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		});
+		writer.close();
 
 		Dictionary dic = new Dictionary("userdata", DictionaryUtil.loadUnrankedDictionary("userdata.txt"), false);
 		String revisedpw = Generator.generatePassphrase("l", 3, dic);
@@ -187,26 +186,23 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 
 	}
 
-	public void extractpdf(File file) throws IOException {
+	public void extractpdf(File file, PrintWriter writer) throws IOException {
 		
 		
-		FileInputStream fis = new FileInputStream(file);
-		PDFParser parser = new PDFParser(fis);
 		
-		parser.parse();
-		
-		COSDocument cosDoc = parser.getDocument();
-		
-		PDDocument pdDoc = new PDDocument(cosDoc);
-		
-		PDFTextStripper strip = new PDFTextStripper();
-		
-		String data = strip.getText(pdDoc);
-		
-		System.out.println(data);
-		
-		
-	      pdDoc.close();
+		PDDocument document = PDDocument.load(file);
+
+	      //Instantiate PDFTextStripper class
+	      PDFTextStripper pdfStripper = new PDFTextStripper();
+
+	      //Retrieving text from PDF document
+	      String text = pdfStripper.getText(document);
+	      
+	      //System.out.println(text);
+	      writer.println(text);
+	      
+	      //Closing the document
+	      document.close();
 	}
 
 	
@@ -221,7 +217,7 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
                 //System.out.println(line);
             	writer.println(line);
             }
-            writer.close();
+            //writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
