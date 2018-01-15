@@ -80,6 +80,23 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		String originalpw = tfCount2.getText();
 		// tfCount3.setText(originalpw);
 
+		//if userdata.txt file does not exist, extract user data
+		File f = new File("src/main/resources/dictionaries/userdata.txt");
+		if (!(f.exists() && !f.isDirectory())) {
+		
+			extractUserData();
+		
+		}
+
+		Dictionary dic = new Dictionary("userdata", DictionaryUtil.loadUnrankedDictionary("userdata.txt"), false);
+		String revisedpw = Generator.generatePassphrase("l", 3, dic);
+		tfCount3.setText(revisedpw);
+
+		
+
+	}
+
+	private void extractUserData() {
 		// get path to documents folder
 		String myDocuments = null;
 
@@ -132,14 +149,7 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 				}
 			
 		});
-////		
-//		try {
-//			extractpdf(new File("C:\\Users\\User\\Documents\\2016ImpactFactorJCR.pdf"));
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
+
 		pdffiles.forEach(file -> {
 			try {
 				extractpdf(file, writer);
@@ -150,40 +160,6 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		});
 		
 		writer.close();
-
-		Dictionary dic = new Dictionary("userdata", DictionaryUtil.loadUnrankedDictionary("userdata.txt"), false);
-		String revisedpw = Generator.generatePassphrase("l", 3, dic);
-		tfCount3.setText(revisedpw);
-
-		// InputStream testInput;
-		// try {
-		// // Create a stream to hold the output
-		// ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		// PrintStream ps = new PrintStream(baos);
-		// // IMPORTANT: Save the old System.out!
-		// PrintStream old = System.out;
-		// // Tell Java to use your special stream
-		// System.setOut(ps);
-		//
-		// testInput = new ByteArrayInputStream("g".getBytes("UTF-8"));
-		// System.setIn( testInput );
-		//
-		//
-		// // Put things back
-		// System.out.flush();
-		// System.setOut(old);
-		// // Show what happened
-		// String revisedpw = baos.toString();
-		// tfCount3.setText(revisedpw);
-		//
-		// } catch (UnsupportedEncodingException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// InputStream old = System.in;
-		//
-		// System.setIn( old );
-
 	}
 
 	public void extractpdf(File file, PrintWriter writer) throws IOException {
