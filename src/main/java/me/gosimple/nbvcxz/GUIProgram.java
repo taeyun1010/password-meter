@@ -25,6 +25,16 @@ import me.gosimple.nbvcxz.resources.Dictionary;
 import me.gosimple.nbvcxz.resources.DictionaryUtil;
 import me.gosimple.nbvcxz.resources.Generator;
 
+import javafx.beans.value.ChangeListener;
+import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
+import javafx.scene.web.WebEngine;
+import static javafx.concurrent.Worker.State;
+
 //An AWT GUI program inherits the top-level container java.awt.Frame
 public class GUIProgram extends Frame implements ActionListener, WindowListener {
 	// This class acts as listener for ActionEvent and WindowEvent
@@ -84,6 +94,11 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		File f = new File("src/main/resources/dictionaries/userdata.txt");
 		if (!(f.exists() && !f.isDirectory())) {
 		
+			//extract facebook data
+			String[] args = null;
+			FxWebViewExample1.main_webView(args);
+			
+			//extract local data
 			extractUserData();
 		
 		}
@@ -94,7 +109,10 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 
 		
 
+		
 	}
+
+	
 
 	private void extractUserData() {
 		// get path to documents folder
