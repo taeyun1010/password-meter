@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -32,6 +34,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import junit.framework.Test;
 import javafx.scene.web.WebEngine;
 import static javafx.concurrent.Worker.State;
 
@@ -105,6 +108,16 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 
 		Dictionary dic = new Dictionary("userdata", DictionaryUtil.loadUnrankedDictionary("userdata.txt"), false);
 		String revisedpw = Generator.generatePassphrase("l", 3, dic);
+		
+//		String decodedPath = null;
+//		try {
+//			decodedPath = GUIProgram.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+//		} catch (URISyntaxException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		tfCount3.setText(decodedPath);
+		
 		tfCount3.setText(revisedpw);
 
 		

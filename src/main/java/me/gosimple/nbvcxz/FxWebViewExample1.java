@@ -14,6 +14,7 @@ public class FxWebViewExample1 extends Application
 {
 	public static void main_webView(String[] args)
 	{
+		
 		Application.launch(args);
 	}
 
@@ -27,7 +28,7 @@ public class FxWebViewExample1 extends Application
 		final WebEngine webEngine = webView.getEngine();
 
 		// LOad the Start-Page
-		webEngine.load("http://www.oracle.com");
+		webEngine.load("http://www.facebook.com");
 
 		// Update the stage title when a new web page title is available
 		webEngine.getLoadWorker().stateProperty().addListener(new ChangeListener<State>()
