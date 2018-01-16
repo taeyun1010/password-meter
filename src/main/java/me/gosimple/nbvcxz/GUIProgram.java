@@ -17,7 +17,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -47,7 +54,7 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 	public TextField tfCount1, tfCount2, tfCount3; // Declare a TextField component
 	private Button btnCount; // Declare a Button component
 	public Nbvcxz nbvcxz;
-	
+
 	private PrintWriter writer = null;
 
 	// Constructor to setup the GUI components and event handlers
@@ -93,39 +100,124 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		String originalpw = tfCount2.getText();
 		// tfCount3.setText(originalpw);
 
-		//if userdata.txt file does not exist, extract user data
+		// if userdata.txt file does not exist, extract user data
 		File f = new File("src/main/resources/dictionaries/userdata.txt");
 		if (!(f.exists() && !f.isDirectory())) {
-		
-			//extract facebook data
-			String[] args = null;
-			FxWebViewExample1.main_webView(args);
-			
-			//extract local data
+
+			// extract facebook data
+			// String[] args = null;
+			// FxWebViewExample1.main_webView(args);
+
+			// extract local data
 			extractUserData();
-		
+
+			// process userdata.txt
+			processUserData();
+
 		}
 
-		Dictionary dic = new Dictionary("userdata", DictionaryUtil.loadUnrankedDictionary("userdata.txt"), false);
+		Dictionary dic = new Dictionary("sorteduserdata", DictionaryUtil.loadUnrankedDictionary("sorteduserdata.txt"), false);
 		String revisedpw = Generator.generatePassphrase("l", 3, dic);
-		
-//		String decodedPath = null;
-//		try {
-//			decodedPath = GUIProgram.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-//		} catch (URISyntaxException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		tfCount3.setText(decodedPath);
-		
+
+		// String decodedPath = null;
+		// try {
+		// decodedPath =
+		// GUIProgram.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+		// } catch (URISyntaxException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// tfCount3.setText(decodedPath);
+
 		tfCount3.setText(revisedpw);
 
-		
-
-		
 	}
 
-	
+	// TODO: process user data in extractUserData() to speed up?
+	private void processUserData() {
+
+		// key value
+		Map<String, Integer> map = new HashMap<String, Integer>();
+
+		try {
+			writer = new PrintWriter("src/main/resources/dictionaries/processeduserdata.txt", "UTF-8");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		BufferedReader br = null;
+
+		// read from userdata.txt, split on space
+		try {
+			br = new BufferedReader(new FileReader("src/main/resources/dictionaries/userdata.txt"));
+			String line;
+			while ((line = br.readLine()) != null) {
+				// System.out.println(line);
+				String[] splited = line.split("\\s+");
+				for (String str : splited) {
+
+					// if this word is already added to map before
+					if (map.containsKey(str)) {
+						map.put(str, map.get(str) + 1);
+					}
+					// if this word is encountered for the first time
+					else {
+						map.put(str, 1);
+					}
+					writer.println(str);
+				}
+			}
+			// writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+
+		// add map to sorteduserdata.txt
+		try {
+			writer = new PrintWriter("src/main/resources/dictionaries/sorteduserdata.txt", "UTF-8");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map<String, Integer> sortedmap = sortByValue(map);
+		// loop a Map
+		for (Map.Entry<String, Integer> entry : sortedmap.entrySet()) {
+			writer.println(entry.getKey());
+		}
+
+	}
+
+	//sorts map, most frequent ones first
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+		LinkedList<Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+				return (o2.getValue()).compareTo(o1.getValue());
+			}
+		});
+
+		Map<K, V> result = new LinkedHashMap<K, V>();
+		for (Map.Entry<K, V> entry : list) {
+			result.put(entry.getKey(), entry.getValue());
+		}
+		return result;
+	}
 
 	private void extractUserData() {
 		// get path to documents folder
@@ -148,13 +240,12 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 			t.printStackTrace();
 		}
 
-		//find all files in myDocuments folder
+		// find all files in myDocuments folder
 		File dir = new File(myDocuments);
 		Collection<File> allfiles = FileUtils.listFiles(dir, null, true);
 		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
 		Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" }, true);
-		
-		
+
 		try {
 			writer = new PrintWriter("src/main/resources/dictionaries/userdata.txt", "UTF-8");
 		} catch (FileNotFoundException e1) {
@@ -164,81 +255,76 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		
-		
+
 		textfiles.forEach(file -> {
-			
-				try {
-					readtxtfile(file, writer);
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			
+
+			try {
+				readtxtfile(file, writer);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		});
 
 		pdffiles.forEach(file -> {
 			try {
 				extractpdf(file, writer);
-			}  catch (IOException e) {
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});
-		
+
 		writer.close();
 	}
 
 	public void extractpdf(File file, PrintWriter writer) throws IOException {
-		
-		
-		
+
 		PDDocument document = PDDocument.load(file);
 
-	      //Instantiate PDFTextStripper class
-	      PDFTextStripper pdfStripper = new PDFTextStripper();
+		// Instantiate PDFTextStripper class
+		PDFTextStripper pdfStripper = new PDFTextStripper();
 
-	      //Retrieving text from PDF document
-	      String text = pdfStripper.getText(document);
-	      
-	      //System.out.println(text);
-	      writer.println(text);
-	      
-	      //Closing the document
-	      document.close();
+		// Retrieving text from PDF document
+		String text = pdfStripper.getText(document);
+
+		// System.out.println(text);
+		writer.println(text);
+
+		// Closing the document
+		document.close();
 	}
 
-	
-	public void readtxtfile(File txtfile, PrintWriter writer) throws FileNotFoundException, UnsupportedEncodingException {
+	public void readtxtfile(File txtfile, PrintWriter writer)
+			throws FileNotFoundException, UnsupportedEncodingException {
 		BufferedReader br = null;
-		
-		
-        try {
-            br = new BufferedReader(new FileReader(txtfile));
-            String line;
-            while ((line = br.readLine()) != null) {
-                //System.out.println(line);
-            	writer.println(line);
-            }
-            //writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-		
+
+		try {
+			br = new BufferedReader(new FileReader(txtfile));
+			String line;
+			while ((line = br.readLine()) != null) {
+				// System.out.println(line);
+				writer.println(line);
+			}
+			// writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+
 	}
-	
+
 	/* WindowEvent handlers */
 	// Called back upon clicking close-window button
 	@Override

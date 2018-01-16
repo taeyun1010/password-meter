@@ -45,6 +45,8 @@ public class DictionaryUtil
     public static final String eff_large = "eff_large.txt";
 
     public static final String userdata = "userdata.txt";
+    
+    public static final String sorteduserdata = "sorteduserdata.txt";
     /**
      * Read a resource file with a list of entries (sorted by frequency) and use
      * it to create a ranked dictionary.
