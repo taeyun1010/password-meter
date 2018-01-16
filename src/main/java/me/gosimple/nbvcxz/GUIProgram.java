@@ -55,7 +55,12 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 	private Button btnCount; // Declare a Button component
 	public Nbvcxz nbvcxz;
 
-	private PrintWriter writer = null;
+	// private PrintWriter writer = null;
+
+	String userdata = "";
+
+	// user data dictionary
+	Dictionary userdataDic;
 
 	// Constructor to setup the GUI components and event handlers
 	public GUIProgram(Nbvcxz nbvcxz2) {
@@ -100,24 +105,23 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		String originalpw = tfCount2.getText();
 		// tfCount3.setText(originalpw);
 
-		// if userdata.txt file does not exist, extract user data
-		File f = new File("src/main/resources/dictionaries/userdata.txt");
-		if (!(f.exists() && !f.isDirectory())) {
+//		String userdata = null;
 
-			// extract facebook data
-			// String[] args = null;
-			// FxWebViewExample1.main_webView(args);
+		// extract facebook data
+		// String[] args = null;
+		// FxWebViewExample1.main_webView(args);
 
-			// extract local data
-			extractUserData();
+		// extract local data, only if userdata was not extracted before
+		if (userdata.equals("")) {
+		userdata = extractUserData();
 
-			// process userdata.txt
-			processUserData();
-
+		// process userdata.txt and get the user data dictionary
+		userdataDic = processUserData(userdata);
 		}
 
-		Dictionary dic = new Dictionary("sorteduserdata", DictionaryUtil.loadUnrankedDictionary("sorteduserdata.txt"), false);
-		String revisedpw = Generator.generatePassphrase("l", 3, dic);
+		// Dictionary dic = new Dictionary("sorteduserdata",
+		// DictionaryUtil.loadUnrankedDictionary("sorteduserdata.txt"), false);
+		String revisedpw = Generator.generatePassphrase("l", 3, userdataDic);
 
 		// String decodedPath = null;
 		// try {
@@ -134,76 +138,42 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 	}
 
 	// TODO: process user data in extractUserData() to speed up?
-	private void processUserData() {
+	private Dictionary processUserData(String userdata) {
 
 		// key value
 		Map<String, Integer> map = new HashMap<String, Integer>();
 
-		try {
-			writer = new PrintWriter("src/main/resources/dictionaries/processeduserdata.txt", "UTF-8");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		BufferedReader br = null;
-
 		// read from userdata.txt, split on space
-		try {
-			br = new BufferedReader(new FileReader("src/main/resources/dictionaries/userdata.txt"));
-			String line;
-			while ((line = br.readLine()) != null) {
-				// System.out.println(line);
-				String[] splited = line.split("\\s+");
-				for (String str : splited) {
 
-					// if this word is already added to map before
-					if (map.containsKey(str)) {
-						map.put(str, map.get(str) + 1);
-					}
-					// if this word is encountered for the first time
-					else {
-						map.put(str, 1);
-					}
-					writer.println(str);
-				}
+		// System.out.println(line);
+		String[] splited = userdata.split("\\s+");
+		for (String str : splited) {
+
+			// if this word is already added to map before
+			if (map.containsKey(str)) {
+				map.put(str, map.get(str) + 1);
 			}
-			// writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null) {
-					br.close();
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
+			// if this word is encountered for the first time
+			else {
+				map.put(str, 1);
 			}
 		}
 
 		// add map to sorteduserdata.txt
-		try {
-			writer = new PrintWriter("src/main/resources/dictionaries/sorteduserdata.txt", "UTF-8");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		Map<String, Integer> sortedmap = sortByValue(map);
-		// loop a Map
-		for (Map.Entry<String, Integer> entry : sortedmap.entrySet()) {
-			writer.println(entry.getKey());
-		}
+		// // loop a Map
+		// for (Map.Entry<String, Integer> entry : sortedmap.entrySet()) {
+		// writer.println(entry.getKey());
+		// }
+
+		Dictionary dic = new Dictionary("sorteduserdata", DictionaryUtil.loadRankedDictionaryGivenMap(sortedmap),
+				false);
+
+		return dic;
 
 	}
 
-	//sorts map, most frequent ones first
+	// sorts map, most frequent ones first
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
 		LinkedList<Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
 		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
@@ -219,9 +189,79 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		return result;
 	}
 
-	private void extractUserData() {
+	// old version that extracts to userdata.txt file
+	// private void extractUserData() {
+	// // get path to documents folder
+	// String myDocuments = null;
+	//
+	// try {
+	// Process p = Runtime.getRuntime().exec(
+	// "reg query
+	// \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell
+	// Folders\" /v personal");
+	// p.waitFor();
+	//
+	// InputStream in = p.getInputStream();
+	// byte[] b = new byte[in.available()];
+	// in.read(b);
+	// in.close();
+	//
+	// myDocuments = new String(b);
+	// myDocuments = myDocuments.split("\\s\\s+")[4];
+	//
+	// } catch (Throwable t) {
+	// t.printStackTrace();
+	// }
+	//
+	// // find all files in myDocuments folder
+	// File dir = new File(myDocuments);
+	// Collection<File> allfiles = FileUtils.listFiles(dir, null, true);
+	// Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" },
+	// true);
+	// Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" },
+	// true);
+	//
+	// try {
+	// writer = new PrintWriter("src/main/resources/dictionaries/userdata.txt",
+	// "UTF-8");
+	// } catch (FileNotFoundException e1) {
+	// // TODO Auto-generated catch block
+	// e1.printStackTrace();
+	// } catch (UnsupportedEncodingException e1) {
+	// // TODO Auto-generated catch block
+	// e1.printStackTrace();
+	// }
+	//
+	// textfiles.forEach(file -> {
+	//
+	// try {
+	// readtxtfile(file, writer);
+	// } catch (FileNotFoundException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// } catch (UnsupportedEncodingException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	//
+	// });
+	//
+	// pdffiles.forEach(file -> {
+	// try {
+	// extractpdf(file, writer);
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// });
+	//
+	// writer.close();
+	// }
+
+	private String extractUserData() {
 		// get path to documents folder
 		String myDocuments = null;
+		// String userdata = "";
 
 		try {
 			Process p = Runtime.getRuntime().exec(
@@ -246,20 +286,10 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
 		Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" }, true);
 
-		try {
-			writer = new PrintWriter("src/main/resources/dictionaries/userdata.txt", "UTF-8");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
 		textfiles.forEach(file -> {
 
 			try {
-				readtxtfile(file, writer);
+				userdata = readtxtfile(file, userdata);
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -272,17 +302,17 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 
 		pdffiles.forEach(file -> {
 			try {
-				extractpdf(file, writer);
+				userdata = extractpdf(file, userdata);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		});
 
-		writer.close();
+		return userdata;
 	}
 
-	public void extractpdf(File file, PrintWriter writer) throws IOException {
+	public String extractpdf(File file, String userdata) throws IOException {
 
 		PDDocument document = PDDocument.load(file);
 
@@ -293,13 +323,15 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		String text = pdfStripper.getText(document);
 
 		// System.out.println(text);
-		writer.println(text);
+		userdata = userdata + text;
 
 		// Closing the document
 		document.close();
+
+		return userdata;
 	}
 
-	public void readtxtfile(File txtfile, PrintWriter writer)
+	public String readtxtfile(File txtfile, String userdata)
 			throws FileNotFoundException, UnsupportedEncodingException {
 		BufferedReader br = null;
 
@@ -307,8 +339,7 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 			br = new BufferedReader(new FileReader(txtfile));
 			String line;
 			while ((line = br.readLine()) != null) {
-				// System.out.println(line);
-				writer.println(line);
+				userdata = userdata + line + "\n";
 			}
 			// writer.close();
 		} catch (IOException e) {
@@ -322,6 +353,8 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 				ex.printStackTrace();
 			}
 		}
+
+		return userdata;
 
 	}
 
