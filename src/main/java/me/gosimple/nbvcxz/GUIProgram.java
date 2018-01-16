@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -105,33 +106,37 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		String originalpw = tfCount2.getText();
 		// tfCount3.setText(originalpw);
 
-//		String userdata = null;
+		// String userdata = null;
 
 		// extract facebook data
 		// String[] args = null;
 		// FxWebViewExample1.main_webView(args);
 
-		// extract local data, only if userdata was not extracted before
+		//get userdata, only if userdata was not extracted before
 		if (userdata.equals("")) {
-		userdata = extractUserData();
+			
+			//extract userdata from local files
+			userdata = extractUserData();
+			
+			//get userdata from twitter
+			try {
+				TwitterExample.getTweets();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-		// process userdata.txt and get the user data dictionary
-		userdataDic = processUserData(userdata);
+			// process and get the user data dictionary
+			userdataDic = processUserData(userdata);
 		}
 
-		// Dictionary dic = new Dictionary("sorteduserdata",
-		// DictionaryUtil.loadUnrankedDictionary("sorteduserdata.txt"), false);
 		String revisedpw = Generator.generatePassphrase("l", 3, userdataDic);
-
-		// String decodedPath = null;
-		// try {
-		// decodedPath =
-		// GUIProgram.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-		// } catch (URISyntaxException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// tfCount3.setText(decodedPath);
 
 		tfCount3.setText(revisedpw);
 
