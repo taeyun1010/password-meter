@@ -97,7 +97,7 @@ public final class TwitterExample {
        
     }
 
-	public static void getLikedTweets(final String verifier) throws IOException, InterruptedException, ExecutionException {
+	public static String getLikedTweets(final String verifier) throws IOException, InterruptedException, ExecutionException {
 		System.out.println("And paste the verifier here");
         System.out.print(">>");
         //final String oauthVerifier = in.nextLine();
@@ -121,5 +121,7 @@ public final class TwitterExample {
 
         System.out.println();
         System.out.println("That's it man! Go and build something awesome with ScribeJava! :)");
+        
+        return response.getBody();
 	}
 }

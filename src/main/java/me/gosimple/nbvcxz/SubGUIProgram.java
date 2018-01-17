@@ -30,6 +30,8 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import me.gosimple.nbvcxz.resources.Dictionary;
 import me.gosimple.nbvcxz.resources.DictionaryUtil;
@@ -92,7 +94,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		// "super" Frame adds "this" object as a WindowEvent listener.
 
 		setTitle("Collecting User Data"); // "super" Frame sets title
-		setSize(250, 250); // "super" Frame sets initial size
+		setSize(350, 400); // "super" Frame sets initial size
 		setVisible(true); // "super" Frame shows
 	}
 
@@ -142,7 +144,25 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			
 			String tverifier = tfCount4.getText();
 			try {
-				TwitterExample.getLikedTweets(tverifier);
+				
+				//gets all liked tweets by the user
+				String bodyOfResponse = TwitterExample.getLikedTweets(tverifier);
+				JSONArray responseArray = new JSONArray(bodyOfResponse);
+				//System.out.println(responseArray);
+				final int n = responseArray.length();
+				for (int i =0; i < n ; ++i) {
+					final JSONObject responseObj = responseArray.getJSONObject(i);
+					
+					//print the written tweet itself, the name of the person who wrote it, and screen-name of the writer
+				System.out.println(responseObj.getString("text"));
+				System.out.println(responseObj.getJSONObject("user").getString("name"));
+				System.out.println(responseObj.getJSONObject("user").getString("screen_name"));
+					
+					//add to userdata
+					userdata = userdata + responseObj.getString("text");
+					userdata = userdata + responseObj.getJSONObject("user").getString("name");
+					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -163,7 +183,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			btnGenerate = new Button("Generate"); // Construct the Button
 			add(btnGenerate); // "super" Frame adds Button
 			btnGenerate.addActionListener(this);
-			tfSuggestedPW = new TextField("", 20); // Construct the TextField
+			tfSuggestedPW = new TextField("", 40); // Construct the TextField
 			tfSuggestedPW.setEditable(false);
 			add(tfSuggestedPW);
 			setVisible(true); // "super" Frame shows
