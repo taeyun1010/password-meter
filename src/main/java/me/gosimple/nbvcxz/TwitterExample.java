@@ -9,7 +9,14 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth10aService;
+
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.ExecutionException;
 
 public final class TwitterExample {
@@ -43,6 +50,30 @@ public final class TwitterExample {
 
         System.out.println("Now go and authorize ScribeJava here:");
         System.out.println(service.getAuthorizationUrl(requestToken));
+        
+        //
+//        try {
+//            URL myURL = new URL(service.getAuthorizationUrl(requestToken));
+//            URLConnection myURLConnection = myURL.openConnection();
+//            myURLConnection.connect();
+//        } 
+//        catch (MalformedURLException e) { 
+//            System.err.println("MalformedURLException");
+//        } 
+//        catch (IOException e) {   
+//        	 System.err.println("openconnection() failed");
+//        }
+        
+        if (Desktop.isDesktopSupported()) {
+            try {
+				Desktop.getDesktop().browse(new URI(service.getAuthorizationUrl(requestToken)));
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+        //
+        
         System.out.println("And paste the verifier here");
         System.out.print(">>");
         final String oauthVerifier = in.nextLine();
