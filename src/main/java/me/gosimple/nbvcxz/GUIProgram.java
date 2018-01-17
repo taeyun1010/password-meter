@@ -52,13 +52,13 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 	// A Java class can extend only one superclass, but it can implement multiple
 	// interfaces.
 
-	public TextField tfCount1, tfCount2, tfCount3; // Declare a TextField component
-	private Button btnCount; // Declare a Button component
+	public TextField tfCount1, tfCount2, tfCount3, tfCount4; // Declare a TextField component
+	private Button btnStart; // Declare a Button component
 	public Nbvcxz nbvcxz;
 
 	// private PrintWriter writer = null;
 
-	String userdata = "";
+	//String userdata = "";
 
 	// user data dictionary
 	Dictionary userdataDic;
@@ -68,131 +68,132 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 		nbvcxz = nbvcxz2;
 
 		setLayout(new FlowLayout()); // "super" Frame sets to FlowLayout
+//
+//		add(new Label("Username  ")); // "super" Frame adds an anonymous Label
+//		tfCount1 = new TextField("", 10); // Construct the TextField
+//		tfCount1.setEditable(true);
+//		add(tfCount1); // "super" Frame adds TextField
+//
+//		add(new Label("Password")); // "super" Frame adds an anonymous Label
+//		tfCount2 = new TextField("", 10); // Construct the TextField
+//		tfCount2.setEditable(true);
+//		add(tfCount2); // "super" Frame adds TextField
 
-		add(new Label("Username  ")); // "super" Frame adds an anonymous Label
-		tfCount1 = new TextField("", 10); // Construct the TextField
-		tfCount1.setEditable(true);
-		add(tfCount1); // "super" Frame adds TextField
 
-		add(new Label("Password")); // "super" Frame adds an anonymous Label
-		tfCount2 = new TextField("", 10); // Construct the TextField
-		tfCount2.setEditable(true);
-		add(tfCount2); // "super" Frame adds TextField
+		btnStart = new Button("Start"); // Construct the Button
+		add(btnStart); // "super" Frame adds Button
 
-		add(new Label("Revised Password")); // "super" Frame adds an anonymous Label
-		tfCount3 = new TextField("", 30); // Construct the TextField
-		tfCount3.setEditable(false); // read-only
-		add(tfCount3); // "super" Frame adds TextField
-
-		btnCount = new Button("Submit"); // Construct the Button
-		add(btnCount); // "super" Frame adds Button
-
-		btnCount.addActionListener(this);
+		btnStart.addActionListener(this);
 		// btnCount (source object) fires ActionEvent upon clicking
 		// btnCount adds "this" object as an ActionEvent listener
+
+		
 
 		addWindowListener(this);
 		// "super" Frame (source object) fires WindowEvent.
 		// "super" Frame adds "this" object as a WindowEvent listener.
 
 		setTitle("Password Meter"); // "super" Frame sets title
-		setSize(250, 200); // "super" Frame sets initial size
+		setSize(250, 250); // "super" Frame sets initial size
 		setVisible(true); // "super" Frame shows
 	}
 
 	/* ActionEvent handler */
 	@Override
 	public void actionPerformed(ActionEvent evt) {
-		String originalpw = tfCount2.getText();
-		// tfCount3.setText(originalpw);
+		// String originalpw = tfCount2.getText();
+		if (evt.getSource() == btnStart) {
 
-		// String userdata = null;
-
-		// extract facebook data
-		// String[] args = null;
-		// FxWebViewExample1.main_webView(args);
-
-		//get userdata, only if userdata was not extracted before
-		if (userdata.equals("")) {
+			SubGUIProgram gui =  new SubGUIProgram(nbvcxz);
 			
-			//extract userdata from local files
-			userdata = extractUserData();
-			
-			//get userdata from twitter
-			try {
-				TwitterExample.getTweets();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			// get userdata, only if userdata was not extracted before
+//			if (userdata.equals("")) {
+//
+//				// extract userdata from local files
+//				userdata = extractUserData();
+//
+//				
+//				
+//				
+//				// get userdata from twitter
+//				try {
+//					TwitterExample.openBrowser(this);
+//					
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (ExecutionException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//
+//				// process and get the user data dictionary
+//				userdataDic = processUserData(userdata);
+//			}
 
-			// process and get the user data dictionary
-			userdataDic = processUserData(userdata);
+//			String revisedpw = Generator.generatePassphrase("l", 3, userdataDic);
+//
+//			tfCount3.setText(revisedpw);
 		}
-
-		String revisedpw = Generator.generatePassphrase("l", 3, userdataDic);
-
-		tfCount3.setText(revisedpw);
-
+		
+		
+		
 	}
 
-	// TODO: process user data in extractUserData() to speed up?
-	private Dictionary processUserData(String userdata) {
+//	// TODO: process user data in extractUserData() to speed up?
+//	private Dictionary processUserData(String userdata) {
+//
+//		// key value
+//		Map<String, Integer> map = new HashMap<String, Integer>();
+//
+//		// read from userdata.txt, split on space
+//
+//		// System.out.println(line);
+//		String[] splited = userdata.split("\\s+");
+//		for (String str : splited) {
+//
+//			// if this word is already added to map before
+//			if (map.containsKey(str)) {
+//				map.put(str, map.get(str) + 1);
+//			}
+//			// if this word is encountered for the first time
+//			else {
+//				map.put(str, 1);
+//			}
+//		}
+//
+//		// add map to sorteduserdata.txt
+//		Map<String, Integer> sortedmap = sortByValue(map);
+//		// // loop a Map
+//		// for (Map.Entry<String, Integer> entry : sortedmap.entrySet()) {
+//		// writer.println(entry.getKey());
+//		// }
+//
+//		Dictionary dic = new Dictionary("sorteduserdata", DictionaryUtil.loadRankedDictionaryGivenMap(sortedmap),
+//				false);
+//
+//		return dic;
+//
+//	}
 
-		// key value
-		Map<String, Integer> map = new HashMap<String, Integer>();
-
-		// read from userdata.txt, split on space
-
-		// System.out.println(line);
-		String[] splited = userdata.split("\\s+");
-		for (String str : splited) {
-
-			// if this word is already added to map before
-			if (map.containsKey(str)) {
-				map.put(str, map.get(str) + 1);
-			}
-			// if this word is encountered for the first time
-			else {
-				map.put(str, 1);
-			}
-		}
-
-		// add map to sorteduserdata.txt
-		Map<String, Integer> sortedmap = sortByValue(map);
-		// // loop a Map
-		// for (Map.Entry<String, Integer> entry : sortedmap.entrySet()) {
-		// writer.println(entry.getKey());
-		// }
-
-		Dictionary dic = new Dictionary("sorteduserdata", DictionaryUtil.loadRankedDictionaryGivenMap(sortedmap),
-				false);
-
-		return dic;
-
-	}
-
-	// sorts map, most frequent ones first
-	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-		LinkedList<Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
-			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-				return (o2.getValue()).compareTo(o1.getValue());
-			}
-		});
-
-		Map<K, V> result = new LinkedHashMap<K, V>();
-		for (Map.Entry<K, V> entry : list) {
-			result.put(entry.getKey(), entry.getValue());
-		}
-		return result;
-	}
+//	// sorts map, most frequent ones first
+//	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+//		LinkedList<Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
+//		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+//			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+//				return (o2.getValue()).compareTo(o1.getValue());
+//			}
+//		});
+//
+//		Map<K, V> result = new LinkedHashMap<K, V>();
+//		for (Map.Entry<K, V> entry : list) {
+//			result.put(entry.getKey(), entry.getValue());
+//		}
+//		return result;
+//	}
 
 	// old version that extracts to userdata.txt file
 	// private void extractUserData() {
@@ -263,105 +264,105 @@ public class GUIProgram extends Frame implements ActionListener, WindowListener 
 	// writer.close();
 	// }
 
-	private String extractUserData() {
-		// get path to documents folder
-		String myDocuments = null;
-		// String userdata = "";
+//	private String extractUserData() {
+//		// get path to documents folder
+//		String myDocuments = null;
+//		// String userdata = "";
+//
+//		try {
+//			Process p = Runtime.getRuntime().exec(
+//					"reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v personal");
+//			p.waitFor();
+//
+//			InputStream in = p.getInputStream();
+//			byte[] b = new byte[in.available()];
+//			in.read(b);
+//			in.close();
+//
+//			myDocuments = new String(b);
+//			myDocuments = myDocuments.split("\\s\\s+")[4];
+//
+//		} catch (Throwable t) {
+//			t.printStackTrace();
+//		}
+//
+//		// find all files in myDocuments folder
+//		File dir = new File(myDocuments);
+//		Collection<File> allfiles = FileUtils.listFiles(dir, null, true);
+//		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
+//		Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" }, true);
+//
+//		textfiles.forEach(file -> {
+//
+//			try {
+//				userdata = readtxtfile(file, userdata);
+//			} catch (FileNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (UnsupportedEncodingException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//		});
+//
+//		pdffiles.forEach(file -> {
+//			try {
+//				userdata = extractpdf(file, userdata);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		});
+//
+//		return userdata;
+//	}
 
-		try {
-			Process p = Runtime.getRuntime().exec(
-					"reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v personal");
-			p.waitFor();
-
-			InputStream in = p.getInputStream();
-			byte[] b = new byte[in.available()];
-			in.read(b);
-			in.close();
-
-			myDocuments = new String(b);
-			myDocuments = myDocuments.split("\\s\\s+")[4];
-
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-
-		// find all files in myDocuments folder
-		File dir = new File(myDocuments);
-		Collection<File> allfiles = FileUtils.listFiles(dir, null, true);
-		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
-		Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" }, true);
-
-		textfiles.forEach(file -> {
-
-			try {
-				userdata = readtxtfile(file, userdata);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		});
-
-		pdffiles.forEach(file -> {
-			try {
-				userdata = extractpdf(file, userdata);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
-
-		return userdata;
-	}
-
-	public String extractpdf(File file, String userdata) throws IOException {
-
-		PDDocument document = PDDocument.load(file);
-
-		// Instantiate PDFTextStripper class
-		PDFTextStripper pdfStripper = new PDFTextStripper();
-
-		// Retrieving text from PDF document
-		String text = pdfStripper.getText(document);
-
-		// System.out.println(text);
-		userdata = userdata + text;
-
-		// Closing the document
-		document.close();
-
-		return userdata;
-	}
-
-	public String readtxtfile(File txtfile, String userdata)
-			throws FileNotFoundException, UnsupportedEncodingException {
-		BufferedReader br = null;
-
-		try {
-			br = new BufferedReader(new FileReader(txtfile));
-			String line;
-			while ((line = br.readLine()) != null) {
-				userdata = userdata + line + "\n";
-			}
-			// writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null) {
-					br.close();
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-
-		return userdata;
-
-	}
+//	public String extractpdf(File file, String userdata) throws IOException {
+//
+//		PDDocument document = PDDocument.load(file);
+//
+//		// Instantiate PDFTextStripper class
+//		PDFTextStripper pdfStripper = new PDFTextStripper();
+//
+//		// Retrieving text from PDF document
+//		String text = pdfStripper.getText(document);
+//
+//		// System.out.println(text);
+//		userdata = userdata + text;
+//
+//		// Closing the document
+//		document.close();
+//
+//		return userdata;
+//	}
+//
+//	public String readtxtfile(File txtfile, String userdata)
+//			throws FileNotFoundException, UnsupportedEncodingException {
+//		BufferedReader br = null;
+//
+//		try {
+//			br = new BufferedReader(new FileReader(txtfile));
+//			String line;
+//			while ((line = br.readLine()) != null) {
+//				userdata = userdata + line + "\n";
+//			}
+//			// writer.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				if (br != null) {
+//					br.close();
+//				}
+//			} catch (IOException ex) {
+//				ex.printStackTrace();
+//			}
+//		}
+//
+//		return userdata;
+//
+//	}
 
 	/* WindowEvent handlers */
 	// Called back upon clicking close-window button
