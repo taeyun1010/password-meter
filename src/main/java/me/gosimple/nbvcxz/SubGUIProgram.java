@@ -27,9 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
-
-
-
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -60,8 +57,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	// A Java class can extend only one superclass, but it can implement multiple
 	// interfaces.
 
-	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW; // Declare a TextField component
-	private Button btnGenerate, btnTVerifier, btnLocalFile; // Declare a Button component
+	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW, tfverifierptweets; // Declare a TextField
+																								// component
+	private Button btnGenerate, btnTVerifier, btnLocalFile, btnGetTweets, btnTVerifierPersonal; // Declare a Button
+																								// component
 	public Nbvcxz nbvcxz;
 
 	// private PrintWriter writer = null;
@@ -93,7 +92,6 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		add(btnLocalFile); // "super" Frame adds Button
 
 		btnLocalFile.addActionListener(this);
-		
 
 		addWindowListener(this);
 		// "super" Frame (source object) fires WindowEvent.
@@ -109,12 +107,12 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	public void actionPerformed(ActionEvent evt) {
 		// String originalpw = tfCount2.getText();
 		if (evt.getSource() == btnLocalFile) {
-			
+
 			// get userdata, only if userdata was not extracted before
 			if (userdata.equals("")) {
 				add(new Label("Extracting userdata..."));
 				setVisible(true);
-				
+
 				// extract userdata from local files
 				userdata = extractUserData();
 
@@ -134,44 +132,68 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			}
 			add(new Label("Enter Twitter verifier")); // "super" Frame adds an anonymous Label
 			tfCount4 = new TextField("", 20); // Construct the TextField
-			tfCount4.setEditable(true); 
+			tfCount4.setEditable(true);
 			add(tfCount4); // "super" Frame adds TextField
 
 			btnTVerifier = new Button("Submit Twitter verifier"); // Construct the Button
 			add(btnTVerifier); // "super" Frame adds Button
 			btnTVerifier.addActionListener(this);
-			
+
 			setVisible(true); // "super" Frame shows
 		}
 
 		if (evt.getSource() == btnTVerifier) {
 			add(new Label("Extracting Twitter data..."));
 			setVisible(true);
-			
+
 			String tverifier = tfCount4.getText();
 			try {
-				
-				//gets all liked tweets by the user
+
+				// gets all liked tweets by the user
 				String bodyOfResponse = TwitterExample.getLikedTweets(tverifier);
 				JSONArray responseArray = new JSONArray(bodyOfResponse);
-				//System.out.println(responseArray);
+				// System.out.println(responseArray);
 				final int n = responseArray.length();
-				for (int i =0; i < n ; ++i) {
+				for (int i = 0; i < n; ++i) {
 					final JSONObject responseObj = responseArray.getJSONObject(i);
+
+					// print the written tweet itself, the name of the person who wrote it, and
+					// screen-name of the writer
+					System.out.println(responseObj.getString("text"));
+//					System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
+//							.getString("expanded_url"));
+					String url = "";
 					
-					//print the written tweet itself, the name of the person who wrote it, and screen-name of the writer
-				//System.out.println(responseObj.getString("text"));
-				//System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0).getString("expanded_url"));
-				String url = responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0).getString("expanded_url");
-				//System.out.println(responseObj.getJSONObject("user").getString("screen_name"));
-					
-//				String url = "https://twitter.com/i/web/status/953000902331453442";
-				Document doc = Jsoup.connect(url).get();
-				Element tweetText = doc.select("p.js-tweet-text.tweet-text").first();
-				//System.out.println(tweetText.text());
-				
-					//add to userdata
-					userdata = userdata + tweetText.text();
+					//add to url only if defined
+					if (responseObj.getJSONObject("entities").getJSONArray("urls").length() != 0) {
+						if (responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0) != null) {
+							url = responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
+									.getString("expanded_url");
+						}
+					}
+					// System.out.println(responseObj.getJSONObject("user").getString("screen_name"));
+
+					// this case is when tweet is short enough that it could be fully included in
+					// "text"
+					if ((url == null) || (url.isEmpty())) {
+						userdata = userdata + responseObj.getString("text");
+
+					}
+					// else we need to connect to expanded_url to get full tweet
+					else {
+						// String url = "https://twitter.com/i/web/status/953000902331453442";
+						Document doc = Jsoup.connect(url).get();
+						Element tweetText = doc.select("p.js-tweet-text.tweet-text").first();
+						// System.out.println(tweetText.text());
+
+						// add only if text is not null (sometimes expanded_url does not point to tweet
+						// so tweetText.text() is undefined
+						if (tweetText != null) {
+							userdata = userdata + tweetText.text();
+						}
+					}
+					// add to userdata
+
 					userdata = userdata + responseObj.getJSONObject("user").getString("name");
 					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
 				}
@@ -185,12 +207,81 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			add(new Label("Twitter search complete"));
-		
-			
+
+			add(new Label("Liked Tweet search complete"));
+			try {
+				TwitterGetAllTweets.openBrowser(this);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			add(new Label("Enter Twitter verifier for personal tweets")); // "super" Frame adds an anonymous Label
+			tfverifierptweets = new TextField("", 20); // Construct the TextField
+			tfverifierptweets.setEditable(true);
+			add(tfverifierptweets); // "super" Frame adds TextField
+
+			btnTVerifierPersonal = new Button("Submit Twitter verifier for personal tweets"); // Construct the Button
+			add(btnTVerifierPersonal); // "super" Frame adds Button
+			btnTVerifierPersonal.addActionListener(this);
+
+			setVisible(true); // "super" Frame shows
+
+		}
+
+		if (evt.getSource() == btnTVerifierPersonal) {
+			String tverifierPersonal = tfverifierptweets.getText();
+
+			try {
+
+				// gets all liked tweets by the user
+				String bodyOfResponse = TwitterGetAllTweets.getAllTweets(tverifierPersonal);
+				JSONArray responseArray = new JSONArray(bodyOfResponse);
+				System.out.println(responseArray);
+				// final int n = responseArray.length();
+				// for (int i = 0; i < n; ++i) {
+				// final JSONObject responseObj = responseArray.getJSONObject(i);
+				//
+				// // print the written tweet itself, the name of the person who wrote it, and
+				// // screen-name of the writer
+				// // System.out.println(responseObj.getString("text"));
+				// //
+				// System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0).getString("expanded_url"));
+				// String url =
+				// responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
+				// .getString("expanded_url");
+				// //
+				// System.out.println(responseObj.getJSONObject("user").getString("screen_name"));
+				//
+				// // String url = "https://twitter.com/i/web/status/953000902331453442";
+				// Document doc = Jsoup.connect(url).get();
+				// Element tweetText = doc.select("p.js-tweet-text.tweet-text").first();
+				// // System.out.println(tweetText.text());
+				//
+				// // add to userdata
+				// userdata = userdata + tweetText.text();
+				// userdata = userdata + responseObj.getJSONObject("user").getString("name");
+				// userdata = userdata +
+				// responseObj.getJSONObject("user").getString("screen_name");
+				// }
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			add(new Label("personal tweet search complete"));
 			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
-			
 
 			btnGenerate = new Button("Generate"); // Construct the Button
 			add(btnGenerate); // "super" Frame adds Button
@@ -199,7 +290,6 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			tfSuggestedPW.setEditable(false);
 			add(tfSuggestedPW);
 			setVisible(true); // "super" Frame shows
-			
 		}
 
 		if (evt.getSource() == btnGenerate) {
