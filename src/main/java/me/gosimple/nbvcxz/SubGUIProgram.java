@@ -243,6 +243,50 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				String bodyOfResponse = TwitterGetAllTweets.getAllTweets(tverifierPersonal);
 				JSONArray responseArray = new JSONArray(bodyOfResponse);
 				System.out.println(responseArray);
+				final int n = responseArray.length();
+				for (int i = 0; i < n; ++i) {
+					final JSONObject responseObj = responseArray.getJSONObject(i);
+
+					// print the written tweet itself, the name of the person who wrote it, and
+					// screen-name of the writer
+					System.out.println(responseObj.getString("text"));
+//					System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
+//							.getString("expanded_url"));
+					String url = "";
+					
+					//add to url only if defined
+					if (responseObj.getJSONObject("entities").getJSONArray("urls").length() != 0) {
+						if (responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0) != null) {
+							url = responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
+									.getString("expanded_url");
+						}
+					}
+					// System.out.println(responseObj.getJSONObject("user").getString("screen_name"));
+
+					// this case is when tweet is short enough that it could be fully included in
+					// "text"
+					if ((url == null) || (url.isEmpty())) {
+						userdata = userdata + responseObj.getString("text");
+
+					}
+					// else we need to connect to expanded_url to get full tweet
+					else {
+						// String url = "https://twitter.com/i/web/status/953000902331453442";
+						Document doc = Jsoup.connect(url).get();
+						Element tweetText = doc.select("p.js-tweet-text.tweet-text").first();
+						// System.out.println(tweetText.text());
+
+						// add only if text is not null (sometimes expanded_url does not point to tweet
+						// so tweetText.text() is undefined
+						if (tweetText != null) {
+							userdata = userdata + tweetText.text();
+						}
+					}
+					// add to userdata
+
+					userdata = userdata + responseObj.getJSONObject("user").getString("name");
+					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
+				}
 				// final int n = responseArray.length();
 				// for (int i = 0; i < n; ++i) {
 				// final JSONObject responseObj = responseArray.getJSONObject(i);
