@@ -42,5 +42,8 @@
 	<classpathentry kind="lib" path="C:/Users/User/Downloads/scribejava-apis-5.1.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/User/Downloads/scribejava-core-5.1.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/User/Downloads/json-20171018.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Downloads/jsoup-1.11.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Downloads/jsoup-1.11.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Downloads/jsoup-1.11.2-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

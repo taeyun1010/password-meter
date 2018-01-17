@@ -27,11 +27,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+
+
+
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import me.gosimple.nbvcxz.resources.Dictionary;
 import me.gosimple.nbvcxz.resources.DictionaryUtil;
@@ -154,12 +160,18 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 					final JSONObject responseObj = responseArray.getJSONObject(i);
 					
 					//print the written tweet itself, the name of the person who wrote it, and screen-name of the writer
-				System.out.println(responseObj.getString("text"));
-				System.out.println(responseObj.getJSONObject("user").getString("name"));
-				System.out.println(responseObj.getJSONObject("user").getString("screen_name"));
+				//System.out.println(responseObj.getString("text"));
+				//System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0).getString("expanded_url"));
+				String url = responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0).getString("expanded_url");
+				//System.out.println(responseObj.getJSONObject("user").getString("screen_name"));
 					
+//				String url = "https://twitter.com/i/web/status/953000902331453442";
+				Document doc = Jsoup.connect(url).get();
+				Element tweetText = doc.select("p.js-tweet-text.tweet-text").first();
+				//System.out.println(tweetText.text());
+				
 					//add to userdata
-					userdata = userdata + responseObj.getString("text");
+					userdata = userdata + tweetText.text();
 					userdata = userdata + responseObj.getJSONObject("user").getString("name");
 					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
 				}
