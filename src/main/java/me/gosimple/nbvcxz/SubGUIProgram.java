@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.filechooser.FileSystemView;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -533,10 +535,61 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 				userdataDic = processUserData(userdata);
 				suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
+				
+				//
+				printToUserDatatxt(userdataDic);
+				add(new Label("created file userdataForProject11111.txt"));
+				add(new Label("in Documents folder"));
+				setVisible(true);
 			}
 			tfSuggestedPW.setText(suggestedPW);
 		}
 
+	}
+
+	private void printToUserDatatxt(Dictionary userdataDic2) {
+		 // get path to documents folder
+		String myDocuments = null;
+
+		try {
+		    Process p =  Runtime.getRuntime().exec("reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v personal");
+		    p.waitFor();
+
+		    InputStream in = p.getInputStream();
+		    byte[] b = new byte[in.available()];
+		    in.read(b);
+		    in.close();
+
+		    myDocuments = new String(b);
+		    myDocuments = myDocuments.split("\\s\\s+")[4];
+
+		} catch(Throwable t) {
+		    t.printStackTrace();
+		}
+	
+		
+		myDocuments = myDocuments + "\\userdataForProject11111.txt";
+		
+		Map<String, Integer> map = userdataDic2.getDictonary();
+		
+		try {
+			PrintWriter writer = new PrintWriter(myDocuments, "UTF-8");
+			
+			//loop a Map
+			for (Map.Entry<String, Integer> entry : map.entrySet()) {
+				writer.println(entry.getKey());
+			
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
 	}
 
 	// TODO: process user data in extractUserData() to speed up?
