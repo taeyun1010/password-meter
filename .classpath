@@ -45,5 +45,6 @@
 	<classpathentry kind="lib" path="C:/Users/User/Downloads/jsoup-1.11.2.jar"/>
 	<classpathentry kind="lib" path="C:/Users/User/Downloads/jsoup-1.11.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="C:/Users/User/Downloads/jsoup-1.11.2-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/User/Downloads/sqlite-jdbc-3.8.7.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
