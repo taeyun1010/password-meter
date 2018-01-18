@@ -59,8 +59,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW, tfverifierptweets; // Declare a TextField
 																								// component
-	private Button btnGenerate, btnTVerifier, btnLocalFile, btnGetTweets, btnTVerifierPersonal; // Declare a Button
-																								// component
+	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal,
+			btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets, btnAllowTweets; // Declare a Button
+	// component
 	public Nbvcxz nbvcxz;
 
 	// private PrintWriter writer = null;
@@ -86,12 +87,17 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		// tfCount2.setEditable(true);
 		// add(tfCount2); // "super" Frame adds TextField
 
-		add(new Label("Search Local Files")); // "super" Frame adds an anonymous Label
+		add(new Label("Search Local Files?")); // "super" Frame adds an anonymous Label
 
-		btnLocalFile = new Button("Search"); // Construct the Button
+		btnLocalFile = new Button("Yes"); // Construct the Button
 		add(btnLocalFile); // "super" Frame adds Button
 
 		btnLocalFile.addActionListener(this);
+
+		btnNoLocalFile = new Button("No"); // Construct the Button
+		add(btnNoLocalFile); // "super" Frame adds Button
+
+		btnNoLocalFile.addActionListener(this);
 
 		addWindowListener(this);
 		// "super" Frame (source object) fires WindowEvent.
@@ -106,6 +112,18 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		// String originalpw = tfCount2.getText();
+
+		if (evt.getSource() == btnNoLocalFile) {
+			add(new Label("Search liked tweets?"));
+			btnAllowLikedTweets = new Button("Yes");
+			add(btnAllowLikedTweets);
+			btnAllowLikedTweets.addActionListener(this);
+			btnNotAllowLikedTweets = new Button("No");
+			add(btnNotAllowLikedTweets);
+			btnNotAllowLikedTweets.addActionListener(this);
+			setVisible(true); // "super" Frame shows
+		}
+
 		if (evt.getSource() == btnLocalFile) {
 
 			// get userdata, only if userdata was not extracted before
@@ -118,6 +136,67 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 			}
 			add(new Label("Local File Search Complete"));
+
+			add(new Label("Search liked tweets?"));
+			btnAllowLikedTweets = new Button("Yes");
+			add(btnAllowLikedTweets);
+			btnAllowLikedTweets.addActionListener(this);
+			btnNotAllowLikedTweets = new Button("No");
+			add(btnNotAllowLikedTweets);
+			btnNotAllowLikedTweets.addActionListener(this);
+			setVisible(true); // "super" Frame shows
+		}
+
+		if (evt.getSource() == btnNotAllowLikedTweets) {
+			add(new Label("Search written tweets?"));
+			btnAllowTweets = new Button("Yes");
+			btnAllowTweets.addActionListener(this);
+			add(btnAllowTweets);
+			btnNotAllowTweets = new Button("No");
+			btnNotAllowTweets.addActionListener(this);
+			add(btnNotAllowTweets);
+			setVisible(true); // "super" Frame shows
+
+		}
+
+		if (evt.getSource() == btnAllowTweets) {
+			try {
+				TwitterGetAllTweets.openBrowser(this);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			add(new Label("Enter Twitter verifier for personal tweets")); // "super" Frame adds an anonymous Label
+			tfverifierptweets = new TextField("", 20); // Construct the TextField
+			tfverifierptweets.setEditable(true);
+			add(tfverifierptweets); // "super" Frame adds TextField
+
+			btnTVerifierPersonal = new Button("Submit Twitter verifier for personal tweets"); // Construct the Button
+			add(btnTVerifierPersonal); // "super" Frame adds Button
+			btnTVerifierPersonal.addActionListener(this);
+
+			setVisible(true); // "super" Frame shows
+		}
+
+		if (evt.getSource() == btnNotAllowTweets) {
+			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
+
+			btnGenerate = new Button("Generate"); // Construct the Button
+			add(btnGenerate); // "super" Frame adds Button
+			btnGenerate.addActionListener(this);
+			tfSuggestedPW = new TextField("", 40); // Construct the TextField
+			tfSuggestedPW.setEditable(false);
+			add(tfSuggestedPW);
+			setVisible(true); // "super" Frame shows
+		}
+
+		if (evt.getSource() == btnAllowLikedTweets) {
 			try {
 				TwitterExample.openBrowser(this);
 			} catch (IOException e) {
@@ -160,11 +239,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 					// print the written tweet itself, the name of the person who wrote it, and
 					// screen-name of the writer
 					System.out.println(responseObj.getString("text"));
-//					System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
-//							.getString("expanded_url"));
+					// System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
+					// .getString("expanded_url"));
 					String url = "";
-					
-					//add to url only if defined
+
+					// add to url only if defined
 					if (responseObj.getJSONObject("entities").getJSONArray("urls").length() != 0) {
 						if (responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0) != null) {
 							url = responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
@@ -209,27 +288,36 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			}
 
 			add(new Label("Liked Tweet search complete"));
-			try {
-				TwitterGetAllTweets.openBrowser(this);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			add(new Label("Enter Twitter verifier for personal tweets")); // "super" Frame adds an anonymous Label
-			tfverifierptweets = new TextField("", 20); // Construct the TextField
-			tfverifierptweets.setEditable(true);
-			add(tfverifierptweets); // "super" Frame adds TextField
-
-			btnTVerifierPersonal = new Button("Submit Twitter verifier for personal tweets"); // Construct the Button
-			add(btnTVerifierPersonal); // "super" Frame adds Button
-			btnTVerifierPersonal.addActionListener(this);
-
+			// try {
+			// TwitterGetAllTweets.openBrowser(this);
+			// } catch (IOException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// } catch (InterruptedException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// } catch (ExecutionException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// add(new Label("Enter Twitter verifier for personal tweets")); // "super"
+			// Frame adds an anonymous Label
+			// tfverifierptweets = new TextField("", 20); // Construct the TextField
+			// tfverifierptweets.setEditable(true);
+			// add(tfverifierptweets); // "super" Frame adds TextField
+			//
+			// btnTVerifierPersonal = new Button("Submit Twitter verifier for personal
+			// tweets"); // Construct the Button
+			// add(btnTVerifierPersonal); // "super" Frame adds Button
+			// btnTVerifierPersonal.addActionListener(this);
+			//
+			add(new Label("Search written tweets?"));
+			btnAllowTweets = new Button("Yes");
+			btnAllowTweets.addActionListener(this);
+			add(btnAllowTweets);
+			btnNotAllowTweets = new Button("No");
+			btnNotAllowTweets.addActionListener(this);
+			add(btnNotAllowTweets);
 			setVisible(true); // "super" Frame shows
 
 		}
@@ -250,11 +338,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 					// print the written tweet itself, the name of the person who wrote it, and
 					// screen-name of the writer
 					System.out.println(responseObj.getString("text"));
-//					System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
-//							.getString("expanded_url"));
+					// System.out.println(responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
+					// .getString("expanded_url"));
 					String url = "";
-					
-					//add to url only if defined
+
+					// add to url only if defined
 					if (responseObj.getJSONObject("entities").getJSONArray("urls").length() != 0) {
 						if (responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0) != null) {
 							url = responseObj.getJSONObject("entities").getJSONArray("urls").getJSONObject(0)
@@ -338,8 +426,19 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 		if (evt.getSource() == btnGenerate) {
 			// process and get the user data dictionary
-			userdataDic = processUserData(userdata);
-			String suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
+
+			// if userdata was not collected at all, use nbvcxz's default generetor, for
+			// now.
+			String suggestedPW = "";
+			if (userdata.equals("")) {
+				suggestedPW = Generator.generatePassphrase("l", 3);
+				
+			} 
+			else {
+
+				userdataDic = processUserData(userdata);
+				suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
+			}
 			tfSuggestedPW.setText(suggestedPW);
 		}
 
