@@ -57,10 +57,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	// A Java class can extend only one superclass, but it can implement multiple
 	// interfaces.
 
-	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW, tfverifierptweets; // Declare a TextField
+	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW, tfverifierptweets, tfverifierGmail; // Declare a TextField
 																								// component
-	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal,
-			btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets, btnAllowTweets; // Declare a Button
+	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal, btnAllowGmail, btnNotAllowGmail,
+			btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets, btnAllowTweets, btnTVerifierGmail; // Declare a Button
 	// component
 	public Nbvcxz nbvcxz;
 
@@ -86,6 +86,35 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		// tfCount2 = new TextField("", 10); // Construct the TextField
 		// tfCount2.setEditable(true);
 		// add(tfCount2); // "super" Frame adds TextField
+		
+		//yahoo
+//		try {
+//			YahooGetUserData.openBrowser(this);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ExecutionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		//
+		
+		//google
+//		try {
+//			GoogleGetGmail.openBrowser(this);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ExecutionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		add(new Label("Search Local Files?")); // "super" Frame adds an anonymous Label
 
@@ -185,6 +214,26 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 
 		if (evt.getSource() == btnNotAllowTweets) {
+//			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
+//
+//			btnGenerate = new Button("Generate"); // Construct the Button
+//			add(btnGenerate); // "super" Frame adds Button
+//			btnGenerate.addActionListener(this);
+//			tfSuggestedPW = new TextField("", 40); // Construct the TextField
+//			tfSuggestedPW.setEditable(false);
+//			add(tfSuggestedPW);
+//			setVisible(true); // "super" Frame shows
+			add(new Label("Search Gmail?"));
+			btnAllowGmail = new Button("Yes");
+			btnAllowGmail.addActionListener(this);
+			add(btnAllowGmail);
+			btnNotAllowGmail = new Button("No");
+			btnNotAllowGmail.addActionListener(this);
+			add(btnNotAllowGmail);
+			setVisible(true); // "super" Frame shows
+		}
+		
+		if (evt.getSource() == btnNotAllowGmail) {
 			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
 
 			btnGenerate = new Button("Generate"); // Construct the Button
@@ -195,7 +244,67 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			add(tfSuggestedPW);
 			setVisible(true); // "super" Frame shows
 		}
+		
+		if (evt.getSource() == btnAllowGmail) {
+			try {
+				GoogleGetGmail.openBrowser(this);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			add(new Label("Enter verifier for Gmail")); // "super" Frame adds an anonymous Label
+			tfverifierGmail = new TextField("", 20); // Construct the TextField
+			tfverifierGmail.setEditable(true);
+			add(tfverifierGmail); // "super" Frame adds TextField
 
+			btnTVerifierGmail = new Button("Submit verifier for Gmail"); // Construct the Button
+			add(btnTVerifierGmail); // "super" Frame adds Button
+			btnTVerifierGmail.addActionListener(this);
+
+			setVisible(true); // "super" Frame shows
+		}
+
+		
+		if(evt.getSource() == btnTVerifierGmail) {
+			add(new Label("Extracting Gmail data..."));
+			setVisible(true);
+
+			String gverifier = tfverifierGmail.getText();
+			String gmailcontent = "";
+			try {
+				gmailcontent = GoogleGetGmail.getGmail(gverifier);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			userdata = userdata + gmailcontent;
+			
+			add(new Label("Gmail search complete"));
+			
+			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
+
+			btnGenerate = new Button("Generate"); // Construct the Button
+			add(btnGenerate); // "super" Frame adds Button
+			btnGenerate.addActionListener(this);
+			tfSuggestedPW = new TextField("", 40); // Construct the TextField
+			tfSuggestedPW.setEditable(false);
+			add(tfSuggestedPW);
+			setVisible(true); // "super" Frame shows
+
+		}
+		
 		if (evt.getSource() == btnAllowLikedTweets) {
 			try {
 				TwitterExample.openBrowser(this);
@@ -288,29 +397,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			}
 
 			add(new Label("Liked Tweet search complete"));
-			// try {
-			// TwitterGetAllTweets.openBrowser(this);
-			// } catch (IOException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// } catch (InterruptedException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// } catch (ExecutionException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// add(new Label("Enter Twitter verifier for personal tweets")); // "super"
-			// Frame adds an anonymous Label
-			// tfverifierptweets = new TextField("", 20); // Construct the TextField
-			// tfverifierptweets.setEditable(true);
-			// add(tfverifierptweets); // "super" Frame adds TextField
-			//
-			// btnTVerifierPersonal = new Button("Submit Twitter verifier for personal
-			// tweets"); // Construct the Button
-			// add(btnTVerifierPersonal); // "super" Frame adds Button
-			// btnTVerifierPersonal.addActionListener(this);
-			//
+		
 			add(new Label("Search written tweets?"));
 			btnAllowTweets = new Button("Yes");
 			btnAllowTweets.addActionListener(this);
@@ -413,14 +500,22 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			}
 
 			add(new Label("personal tweet search complete"));
-			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
-
-			btnGenerate = new Button("Generate"); // Construct the Button
-			add(btnGenerate); // "super" Frame adds Button
-			btnGenerate.addActionListener(this);
-			tfSuggestedPW = new TextField("", 40); // Construct the TextField
-			tfSuggestedPW.setEditable(false);
-			add(tfSuggestedPW);
+//			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
+//
+//			btnGenerate = new Button("Generate"); // Construct the Button
+//			add(btnGenerate); // "super" Frame adds Button
+//			btnGenerate.addActionListener(this);
+//			tfSuggestedPW = new TextField("", 40); // Construct the TextField
+//			tfSuggestedPW.setEditable(false);
+//			add(tfSuggestedPW);
+//			setVisible(true); // "super" Frame shows
+			add(new Label("Search Gmail?"));
+			btnAllowGmail = new Button("Yes");
+			btnAllowGmail.addActionListener(this);
+			add(btnAllowGmail);
+			btnNotAllowGmail = new Button("No");
+			btnNotAllowGmail.addActionListener(this);
+			add(btnNotAllowGmail);
 			setVisible(true); // "super" Frame shows
 		}
 

@@ -76,17 +76,7 @@ public final class TwitterGetAllTweets {
         if (Desktop.isDesktopSupported()) {
             try {
 				Desktop.getDesktop().browse(new URI(service.getAuthorizationUrl(requestToken)));
-				
-//				gui.add(new Label("Enter Twitter verifier")); // "super" Frame adds an anonymous Label
-//				TextField tfCount4 = new TextField("", 20); // Construct the TextField
-//				tfCount4.setEditable(true); // read-only
-//				gui.add(tfCount4); // "super" Frame adds TextField
-//
-//				Button btnTVerifier = new Button("Submit Twitter verifier"); // Construct the Button
-//				gui.add(btnTVerifier); // "super" Frame adds Button
-//
-//				btnTVerifier.addActionListener(gui);
-//				gui.setVisible(true); // "super" Frame shows
+			
 				
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
