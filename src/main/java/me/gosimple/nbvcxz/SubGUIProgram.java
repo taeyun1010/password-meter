@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.swing.filechooser.FileSystemView;
 
 import org.apache.commons.io.FileUtils;
@@ -37,6 +40,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.python.util.PythonInterpreter;
 
 import me.gosimple.nbvcxz.resources.Dictionary;
 import me.gosimple.nbvcxz.resources.DictionaryUtil;
@@ -117,6 +121,30 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		
+		//python code example
+//		System.setProperty("python.console.encoding", "UTF-8");
+//		PythonInterpreter interpreter;
+//		interpreter = new PythonInterpreter();
+//		//interpreter.execfile("src\\main\\java\\me\\gosimple\\nbvcxz\\pwd_guess.py");
+//		//interpreter.execfile("src\\main\\java\\me\\gosimple\\nbvcxz\\example_python_code.py");
+//		interpreter.exec("print 'Hello, world!'");
+//		interpreter.close();
+		//
+		
+		//javascript example
+		// create a script engine manager
+//        ScriptEngineManager factory = new ScriptEngineManager();
+//        // create a JavaScript engine
+//        ScriptEngine engine = factory.getEngineByName("JavaScript");
+//        // evaluate JavaScript code from String
+//        try {
+//			engine.eval("print('Hello, World')");
+//		} catch (ScriptException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		//
 		
 		//TODO: chrome user data
 		//GoogleChrome.GetHistory();
@@ -539,7 +567,18 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 				userdataDic = processUserData(userdata);
 				suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
-				
+				Nbvcxz nbvcxz = new Nbvcxz();
+				Double entropy = nbvcxz.estimate(suggestedPW).getEntropy();
+				//if zxcvbn returns a password strength lower than threshold, generate different password
+				// set threshold to 15 for now
+				while(entropy < 100) {
+					suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
+					entropy = nbvcxz.estimate(suggestedPW).getEntropy();
+					//System.out.println("generated password = " + suggestedPW);
+					//System.out.println("entropy = " + entropy);
+				}
+				System.out.println("generated password = " + suggestedPW);
+				System.out.println("entropy = " + entropy);
 				//
 				printToUserDatatxt(userdataDic);
 				add(new Label("created file userdataForProject11111.txt"));
