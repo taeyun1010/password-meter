@@ -570,7 +570,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				Nbvcxz nbvcxz = new Nbvcxz();
 				Double entropy = nbvcxz.estimate(suggestedPW).getEntropy();
 				//if zxcvbn returns a password strength lower than threshold, generate different password
-				// set threshold to 15 for now
+				// set threshold to 100 for now
 				while(entropy < 100) {
 					suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
 					entropy = nbvcxz.estimate(suggestedPW).getEntropy();
