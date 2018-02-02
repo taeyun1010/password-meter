@@ -36,6 +36,7 @@ public class Generator
         final int high = dictionary.getSortedDictionary().size();
         for (int i = 1; i <= words; i++)
         {
+        	
             result += dictionary.getSortedDictionary().get(rnd.nextInt(high));
             if (i < words)
             {
