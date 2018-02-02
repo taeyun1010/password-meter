@@ -628,14 +628,20 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			// if userdata was not collected at all, use nbvcxz's default generetor, for
 			// now.
 			String suggestedPW = "";
+			
+			//TODO: check that delimeter is in English
 			String delimeter = tfdelimeter.getText();
 			int numWords = Integer.parseInt(tfnumWords.getText());
 			int minLength = Integer.parseInt(tfpwMinLen.getText());
 			int maxLength = Integer.parseInt(tfpwMaxLen.getText());
 			
 			if (userdata.equals("")) {
-				suggestedPW = Generator.generatePassphrase(delimeter, numWords);
-				
+				while(true) {
+					suggestedPW = Generator.generatePassphrase(delimeter, numWords);
+					if ((suggestedPW.length() >= minLength) && (suggestedPW.length() <= maxLength)) {
+						break;
+					}
+				}
 			} 
 			else {
 
@@ -663,10 +669,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				String meaningOfHanguel = "";
 				Double entropy;
 				while (true) {
-					suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
+					suggestedPW = Generator.generatePassphrase(delimeter, numWords, userdataDic);
 					
 					// if suggestedPW contains Hanguel, convert to English and inform user
-					String[] words = suggestedPW.split("l");
+					String[] words = suggestedPW.split(delimeter);
 					suggestedPW = "";
 					meaningOfHanguel = "";
 					for (String word : words) {
@@ -707,7 +713,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 							System.out.println(meaningOfHanguel);
 							word = convertedWord;
 						}
-						suggestedPW = suggestedPW + word + "l";
+						suggestedPW = suggestedPW + word + delimeter;
 
 					}
 					entropy = nbvcxz.estimate(suggestedPW).getEntropy();
