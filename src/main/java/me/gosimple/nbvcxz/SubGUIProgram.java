@@ -668,6 +668,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //				}
 				String meaningOfHanguel = "";
 				Double entropy;
+				
+				
 				while (true) {
 					suggestedPW = Generator.generatePassphrase(delimeter, numWords, userdataDic);
 					
@@ -710,17 +712,25 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 							// word = convertToEng(word);
 							meaningOfHanguel = meaningOfHanguel + convertedWord + " stands for " + originalWord
 									+ "    ";
-							System.out.println(meaningOfHanguel);
+							
 							word = convertedWord;
 						}
 						suggestedPW = suggestedPW + word + delimeter;
 
 					}
+					
+					// if length requirement specified by the user is not met
+					// TODO: get rid of infinite loop caused by no password possible meeting the length requirement
+					if (!((suggestedPW.length() >= minLength) && (suggestedPW.length() <= maxLength))) {
+						continue;
+					}
+					
 					entropy = nbvcxz.estimate(suggestedPW).getEntropy();
 					// if zxcvbn returns a password strength lower than threshold, generate
-					// different password
+					// a different password
 					// set threshold to 100 for now
 					if (entropy >= 100) {
+						System.out.println(meaningOfHanguel);
 						break;
 						// System.out.println("generated password = " + suggestedPW);
 						// System.out.println("entropy = " + entropy);
