@@ -70,6 +70,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 																								// component
 	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal, btnAllowGmail, btnNotAllowGmail,
 			btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets, btnAllowTweets, btnTVerifierGmail, btnConvert; // Declare a Button
+	
+	private Checkbox hanCheckbox;
+	
 	// component
 	public Nbvcxz nbvcxz;
 	
@@ -84,6 +87,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	
 	//maximum length of password it can be
 	private int pwMaxLen;
+	
+	//if Hanguel, converted to English, is to be included in the password or not
+	boolean includeHan;
 
 	String userdata = "";
 
@@ -321,6 +327,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			tfdelimeter.setEditable(true);
 			add(tfdelimeter);
 			
+			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
+			add(hanCheckbox); // "super" Frame adds an anonymous Label
+		
+			
+			
 			btnGenerate = new Button("Generate"); // Construct the Button
 			add(btnGenerate); // "super" Frame adds Button
 			btnGenerate.addActionListener(this);
@@ -397,6 +408,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			tfdelimeter = new TextField("", 1); // Construct the TextField
 			tfdelimeter.setEditable(true);
 			add(tfdelimeter);
+			
+			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
+			add(hanCheckbox); // "super" Frame adds an anonymous Label
+		
 			
 			btnGenerate = new Button("Generate"); // Construct the Button
 			add(btnGenerate); // "super" Frame adds Button
@@ -672,50 +687,79 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				
 				while (true) {
 					suggestedPW = Generator.generatePassphrase(delimeter, numWords, userdataDic);
-					
+					String originalPass = suggestedPW;
 					// if suggestedPW contains Hanguel, convert to English and inform user
 					String[] words = suggestedPW.split(delimeter);
 					suggestedPW = "";
 					meaningOfHanguel = "";
-					for (String word : words) {
-						// convert only if at least one character in this word is Hanguel
-						boolean mustBeConverted = false;
-						for (int i = 0; i < word.length(); i++) {
-							char letter = word.charAt(i);
-							String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
-							// System.out.println( "\\u" + unicodeStr);
-							int unicode = Integer.parseInt(unicodeStr, 16);
-							if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
-								mustBeConverted = true;
-							}
-
-						}
-
-						// if it has to be converted
-						if (mustBeConverted == true) {
-							// since convertToEng is defined only for Hanguel, scan every char, and call
-							// converToEng only if it is Hanguel
-							String originalWord = word;
-							String convertedWord = "";
+					if (hanCheckbox.getState() == false) {
+						// if at least one of the words contain at least one Hanguel char, try different
+						// password
+						boolean tryDiffpw = false;
+						for (String word : words) {
+							// 
+						
 							for (int i = 0; i < word.length(); i++) {
 								char letter = word.charAt(i);
 								String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
 								// System.out.println( "\\u" + unicodeStr);
 								int unicode = Integer.parseInt(unicodeStr, 16);
 								if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
-									convertedWord = convertedWord + convertToEng(Character.toString(letter));
-								} else {
-									convertedWord = convertedWord + Character.toString(letter);
+									tryDiffpw = true;
 								}
 
 							}
-							// word = convertToEng(word);
-							meaningOfHanguel = meaningOfHanguel + convertedWord + " stands for " + originalWord
-									+ "    ";
-							
-							word = convertedWord;
+
 						}
-						suggestedPW = suggestedPW + word + delimeter;
+						if(tryDiffpw == false) {
+							continue;
+						}
+						else {
+							suggestedPW = originalPass;
+						}
+					} else {
+
+						for (String word : words) {
+							// convert only if at least one character in this word is Hanguel
+							boolean mustBeConverted = false;
+							for (int i = 0; i < word.length(); i++) {
+								char letter = word.charAt(i);
+								String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
+								// System.out.println( "\\u" + unicodeStr);
+								int unicode = Integer.parseInt(unicodeStr, 16);
+								if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
+									mustBeConverted = true;
+								}
+
+							}
+
+							// if it has to be converted
+							if (mustBeConverted == true) {
+								// since convertToEng is defined only for Hanguel, scan every char, and call
+								// converToEng only if it is Hanguel
+								String originalWord = word;
+								String convertedWord = "";
+								for (int i = 0; i < word.length(); i++) {
+									char letter = word.charAt(i);
+									String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
+									// System.out.println( "\\u" + unicodeStr);
+									int unicode = Integer.parseInt(unicodeStr, 16);
+									if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
+										convertedWord = convertedWord + convertToEng(Character.toString(letter));
+									} else {
+										convertedWord = convertedWord + Character.toString(letter);
+									}
+
+								}
+								// word = convertToEng(word);
+								meaningOfHanguel = meaningOfHanguel + convertedWord + " stands for " + originalWord
+										+ "    ";
+
+								word = convertedWord;
+							}
+							suggestedPW = suggestedPW + word + delimeter;
+
+						}
 
 					}
 					
