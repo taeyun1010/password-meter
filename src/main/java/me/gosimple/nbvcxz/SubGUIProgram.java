@@ -76,8 +76,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	// component
 	public Nbvcxz nbvcxz;
 	
-	//characters that should not appear in generated password
-	private char[] bannedChars = {',', '.', '】','【','','[',']','{','}',';',':','"','<','>','/','?', '\'','\\', '|', '-','_','=','+'}; 
+	// characters that should not appear in generated password
+	private char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
+			'\\', '|', '-', '_', '=', '+', '\'', '"' };
 
 	//number of words to be used in passphrase
 	private int numWordsPP;
@@ -386,6 +387,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				e.printStackTrace();
 			}
 			userdata = userdata + gmailcontent;
+			userdata = userdata + "\n";
 			
 			add(new Label("Gmail search complete"));
 			
@@ -483,7 +485,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 					// "text"
 					if ((url == null) || (url.isEmpty())) {
 						userdata = userdata + responseObj.getString("text");
-
+						userdata = userdata + "\n";
 					}
 					// else we need to connect to expanded_url to get full tweet
 					else {
@@ -496,12 +498,15 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 						// so tweetText.text() is undefined
 						if (tweetText != null) {
 							userdata = userdata + tweetText.text();
+							userdata = userdata + "\n";
 						}
 					}
 					// add to userdata
-
-					userdata = userdata + responseObj.getJSONObject("user").getString("name");
-					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
+					
+					//extra info available from Twitter
+//
+//					userdata = userdata + responseObj.getJSONObject("user").getString("name");
+//					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -532,7 +537,6 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 			try {
 
-				// gets all liked tweets by the user
 				String bodyOfResponse = TwitterGetAllTweets.getAllTweets(tverifierPersonal);
 				JSONArray responseArray = new JSONArray(bodyOfResponse);
 				System.out.println(responseArray);
@@ -560,6 +564,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 					// "text"
 					if ((url == null) || (url.isEmpty())) {
 						userdata = userdata + responseObj.getString("text");
+						userdata = userdata + "\n";
 
 					}
 					// else we need to connect to expanded_url to get full tweet
@@ -572,13 +577,19 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 						// add only if text is not null (sometimes expanded_url does not point to tweet
 						// so tweetText.text() is undefined
 						if (tweetText != null) {
+//							userdata = userdata + "\n";
 							userdata = userdata + tweetText.text();
+							userdata = userdata + "\n";
+//							System.out.println("tweetText = " + tweetText.text());
+//							userdata = userdata + "\n";
 						}
 					}
 					// add to userdata
-
-					userdata = userdata + responseObj.getJSONObject("user").getString("name");
-					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
+//
+					
+					//extra information available from Twitter
+//					userdata = userdata + responseObj.getJSONObject("user").getString("name");
+//					userdata = userdata + responseObj.getJSONObject("user").getString("screen_name");
 				}
 				// final int n = responseArray.length();
 				// for (int i = 0; i < n; ++i) {
@@ -664,8 +675,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				if (userdataDic == null) {
 					userdataDic = processUserData(userdata);
 					printToUserDatatxt(userdataDic);
+					System.out.println("userdata = " + userdata);
 					add(new Label("created file userdataForProject11111.txt"));
 					add(new Label("in Documents folder"));
+					setVisible(true);
 				}
 				
 				//suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
@@ -711,7 +724,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 							}
 
 						}
-						if(tryDiffpw == false) {
+						if(tryDiffpw == true) {
 							continue;
 						}
 						else {
@@ -1316,6 +1329,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 		// System.out.println(text);
 		userdata = userdata + text;
+		userdata = userdata + "\n";
 
 		// Closing the document
 		document.close();
