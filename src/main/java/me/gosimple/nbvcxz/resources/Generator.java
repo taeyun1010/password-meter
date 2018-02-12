@@ -29,6 +29,8 @@ public class Generator
      * @param dictionary the dictionary to use for generating this passphrase
      * @return the passphrase
      */
+    
+    //original zxcvbn version
     public static String generatePassphrase(final String delimiter, final int words, final Dictionary dictionary)
     {
         String result = "";
@@ -46,6 +48,27 @@ public class Generator
         return result;
     }
 
+    
+//    //version that accounts for rank in dictionary
+//	public static String generatePassphrase(final String delimiter, final int words, final Dictionary dictionary) {
+//		String result = "";
+//		final int high = dictionary.getDictonary().size();
+//		for(int i=0; i < words; i++) {
+//			
+//			for (int j=0; j < high; j++) {
+//				
+//			}
+//		}
+//		for (int i = 1; i <= words; i++) {
+//
+//			result += dictionary.getSortedDictionary().get(rnd.nextInt(high));
+//			if (i < words) {
+//				result += delimiter;
+//			}
+//		}
+//		return result;
+//	}
+//    
     /**
      * Generates a random password of the specified length with the specified characters.
      *

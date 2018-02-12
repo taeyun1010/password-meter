@@ -23,11 +23,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.script.ScriptEngine;
@@ -66,11 +69,13 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	// A Java class can extend only one superclass, but it can implement multiple
 	// interfaces.
 
-	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW, tfverifierptweets, tfverifierGmail, tfHanguel, tfEnglish, tfpwMinLen, tfpwMaxLen, tfnumWords, tfdelimeter; // Declare a TextField
-																								// component
-	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal, btnAllowGmail, btnNotAllowGmail,
-			btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets, btnAllowTweets, btnTVerifierGmail, btnConvert; // Declare a Button
-	
+	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW, tfverifierptweets, tfverifierGmail,
+			tfHanguel, tfEnglish, tfpwMinLen, tfpwMaxLen, tfnumWords, tfdelimeter, tfminEntropy; // Declare a TextField
+	// component
+	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal,
+			btnAllowGmail, btnNotAllowGmail, btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets,
+			btnAllowTweets, btnTVerifierGmail, btnConvert; // Declare a Button
+
 	private Checkbox hanCheckbox;
 	
 	// component
@@ -80,6 +85,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	private char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
 			'\\', '|', '-', '_', '=', '+', '\'', '"' };
 
+	private Set<String> generatedPWs = new HashSet<String>();
+	
 	//number of words to be used in passphrase
 	private int numWordsPP;
 	
@@ -328,6 +335,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			tfdelimeter.setEditable(true);
 			add(tfdelimeter);
 			
+			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
+			tfminEntropy = new TextField("", 2); // Construct the TextField
+			tfminEntropy.setEditable(true);
+			add(tfminEntropy);
+			
 			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
 			add(hanCheckbox); // "super" Frame adds an anonymous Label
 		
@@ -410,6 +422,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			tfdelimeter = new TextField("", 1); // Construct the TextField
 			tfdelimeter.setEditable(true);
 			add(tfdelimeter);
+			
+			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
+			tfminEntropy = new TextField("", 2); // Construct the TextField
+			tfminEntropy.setEditable(true);
+			add(tfminEntropy);
 			
 			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
 			add(hanCheckbox); // "super" Frame adds an anonymous Label
@@ -660,6 +677,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			int numWords = Integer.parseInt(tfnumWords.getText());
 			int minLength = Integer.parseInt(tfpwMinLen.getText());
 			int maxLength = Integer.parseInt(tfpwMaxLen.getText());
+			int minEntropy = Integer.parseInt(tfminEntropy.getText());
 			
 			if (userdata.equals("")) {
 				while(true) {
@@ -695,11 +713,48 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //					//System.out.println("entropy = " + entropy);
 //				}
 				String meaningOfHanguel = "";
-				Double entropy;
+				Double entropy = 0.000;
+
+				final int high = userdataDic.getDictonary().size();
+
+				//reverse order; most infrequent ones first
+				Map<String, Integer> sortedDic = sortByValue(userdataDic.getDictonary());
+				//List<String> userdataWords = new ArrayList<String>(sortedDic.value);
 				
 				
-				while (true) {
-					suggestedPW = Generator.generatePassphrase(delimeter, numWords, userdataDic);
+				//if actual numLoops returns greater than 214783647 (max int value possible)
+				// it is set to 214783647
+				int numLoops = (int) Math.pow(high, numWords);
+				
+				
+				
+				for (int j = 0; j < numLoops; j++) {
+					suggestedPW = "";
+					for (int k=1; k <= numWords; k++) {
+						//if k == numWords, need remainder rather than quotient
+						if (k == numWords) {
+							suggestedPW = suggestedPW + getKeyByValue(sortedDic, (j % k) + 1);
+						}
+						//else need quotient
+						else {
+							int expon = numWords - k;
+							int rank = j / ((int)Math.pow(numWords, expon));
+							//since rank starts counting from 1
+							rank =rank +1;
+							suggestedPW = suggestedPW + getKeyByValue(sortedDic, rank);
+							suggestedPW = suggestedPW + delimeter;
+						}
+					
+					}
+					
+					// if this pw was already generated before
+					// if (!generatedPWs.isEmpty()) {
+					if (this.generatedPWs.contains(suggestedPW)) {
+						continue;
+					}
+					// }
+					
+					//suggestedPW = Generator.generatePassphrase(delimeter, numWords, userdataDic);
 					String originalPass = suggestedPW;
 					// if suggestedPW contains Hanguel, convert to English and inform user
 					String[] words = suggestedPW.split(delimeter);
@@ -710,8 +765,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 						// password
 						boolean tryDiffpw = false;
 						for (String word : words) {
-							// 
-						
+							//
+
 							for (int i = 0; i < word.length(); i++) {
 								char letter = word.charAt(i);
 								String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
@@ -724,10 +779,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 							}
 
 						}
-						if(tryDiffpw == true) {
+						if (tryDiffpw == true) {
 							continue;
-						}
-						else {
+						} else {
 							suggestedPW = originalPass;
 						}
 					} else {
@@ -775,28 +829,37 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 						}
 
 					}
-					
+
 					// if length requirement specified by the user is not met
-					// TODO: get rid of infinite loop caused by no password possible meeting the length requirement
+					// TODO: get rid of infinite loop caused by no password possible meeting the
+					// length requirement
 					if (!((suggestedPW.length() >= minLength) && (suggestedPW.length() <= maxLength))) {
 						continue;
 					}
-					
+
 					entropy = nbvcxz.estimate(suggestedPW).getEntropy();
-					// if zxcvbn returns a password strength lower than threshold, generate
+					// if zxcvbn returns a password strength lower than the threshold user specified, generate
 					// a different password
-					// set threshold to 100 for now
-					if (entropy >= 100) {
+					if (entropy >= minEntropy) {
 						System.out.println(meaningOfHanguel);
 						break;
 						// System.out.println("generated password = " + suggestedPW);
 						// System.out.println("entropy = " + entropy);
 					}
+					
+					//tried all possible passwords, none passed
+					if (j == (numLoops - 1)) {
+						tfSuggestedPW.setText("");
+						add(new Label("no password possible, try different setting"));
+						setVisible(true);
+						return;
+					}
 				}
+
 				//
-				
+
 				System.out.println("generated password = " + suggestedPW);
-				
+
 				System.out.println("entropy = " + entropy);
 				//
 //				printToUserDatatxt(userdataDic);
@@ -811,11 +874,25 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //				add(new Label("in Documents folder"));
 				setVisible(true);
 			}
+			
 			tfSuggestedPW.setText(suggestedPW);
+			generatedPWs.add(suggestedPW);
+			add(new Label("click generate button again to try different password"));
+			setVisible(true);
+			
 		}
 
 	}
 
+	
+	public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
+	    for (Entry<T, E> entry : map.entrySet()) {
+	        if (Objects.equals(value, entry.getValue())) {
+	            return entry.getKey();
+	        }
+	    }
+	    return null;
+	}
 	
 	private String convertToEng(String hanguel) {
 		String result = "";
@@ -1108,15 +1185,20 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		myDocuments = myDocuments + "\\userdataForProject11111.txt";
 		
 		Map<String, Integer> map = userdataDic2.getDictonary();
-		
+		//Map<String, Integer> sortedmap = sortByValue(map);
+		int numOfWords = map.size();
 		try {
 			PrintWriter writer = new PrintWriter(myDocuments, "UTF-8");
 			
-			//loop a Map
-			for (Map.Entry<String, Integer> entry : map.entrySet()) {
-				writer.println(entry.getKey());
-			
+			for (int i=1; i <= numOfWords; i++) {
+				writer.println(getKeyByValue(map, i));
 			}
+			
+//			//loop a Map
+//			for (Map.Entry<String, Integer> entry : map.entrySet()) {
+//				writer.println(entry.getKey());
+//			
+//			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
