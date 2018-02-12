@@ -80,10 +80,15 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	private TextField tfSuggestedPW = new TextField("", 40);
 	private Checkbox hanCheckbox = new Checkbox("Include Hanguel in passwords?");
 	private Button btnGenerate = new Button("Generate");
+	private Button btnGenerateTokenDate = new Button("Generate TokenDate pw");
+	//private Button btnGeneratePWforTD = new Button("Generate");
+	
+	// "passphrase", "tokendate"
+	private String patternOption;
 	// component
 	private Button btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal,
 			btnAllowGmail, btnNotAllowGmail, btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets,
-			btnAllowTweets, btnTVerifierGmail, btnConvert, btnAbort, btnGenerateTokenDate, btnGeneratePass; // Declare a Button
+			btnAllowTweets, btnTVerifierGmail, btnConvert, btnAbort, btnGeneratePass; // Declare a Button
 
 	
 	private volatile Thread t, gmailThread;
@@ -103,6 +108,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	private Label searchPtweetlbl = new Label("Search written tweets?");
 	private Label searchGmaillbl = new Label("Search Gmail?");
+	
+	private Label tverifierplbl = new Label("Enter Twitter verifier for personal tweets");
 	
 	private Label minPWlenlbl = new Label("Enter Min pw length");
 	
@@ -219,6 +226,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		//GoogleChrome.GetHistory();
 		//
 
+		
 		add(new Label("Convert Hanguel to English")); 
 		tfHanguel = new TextField("", 40); // Construct the TextField
 		tfHanguel.setEditable(true);
@@ -248,7 +256,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		// "super" Frame adds "this" object as a WindowEvent listener.
 
 		setTitle("Collecting User Data"); // "super" Frame sets title
-		setSize(350, 400); // "super" Frame sets initial size
+		setSize(350, 1500); // "super" Frame sets initial size
+		setResizable(false);
 		setVisible(true); // "super" Frame shows
 	}
 
@@ -343,7 +352,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			add(new Label("Enter Twitter verifier for personal tweets")); // "super" Frame adds an anonymous Label
+			
+			add(tverifierplbl); // "super" Frame adds an anonymous Label
 			tfverifierptweets = new TextField("", 20); // Construct the TextField
 			tfverifierptweets.setEditable(true);
 			add(tfverifierptweets); // "super" Frame adds TextField
@@ -660,6 +670,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 
 		if (evt.getSource() == btnTVerifierPersonal) {
+			btnTVerifierPersonal.setVisible(false);
+			tfverifierptweets.setVisible(false);
+			tverifierplbl.setVisible(false);
 			String tverifierPersonal = tfverifierptweets.getText();
 
 			try {
@@ -788,8 +801,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnGenerateTokenDate) {
-//			btnGenerateTokenDate.setVisible(false);
-//			btnGeneratePass.setVisible(true);
+
+			patternOption = "tokendate";
 			//if never set up
 			if(neverSetUp == true) {
 				setupPWrequirement();
@@ -799,8 +812,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnGeneratePass) {
-//			btnGeneratePass.setVisible(false);
-//			btnGenerateTokenDate.setVisible(true);
+
+			patternOption = "passphrase";
 			if(neverSetUp == true) {
 				setupPWrequirement();
 				neverSetUp = false;
@@ -809,6 +822,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnGenerate) {
+			// token date pattern
+			if (patternOption == "tokendate") {
+				return;
+			}
 			
 			if(btnAbortset == true) {
 				//do nothing
@@ -1086,6 +1103,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 						setVisible(true);
 						generatelblset = true;
 					}
+					//btnAbort.setVisible(false);
 					
 				}
 			});
@@ -1121,6 +1139,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	
 		add(btnGenerate); // "super" Frame adds Button
 		btnGenerate.addActionListener(this);
+//		add(btnGeneratePWforTD); // "super" Frame adds Button
+//		btnGeneratePWforTD.addActionListener(this);
+		
 		tfSuggestedPW.setEditable(false);
 		add(tfSuggestedPW);
 		setVisible(true); // "super" Frame shows
@@ -1130,6 +1151,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	private void createPWrequirementTokenDate() {
 		btnGenerateTokenDate.setVisible(false);
 		btnGeneratePass.setVisible(true);
+		//btnGeneratePWforTD.setVisible(true);
 		minPWlenlbl.setVisible(true);
 		maxPWlenlbl.setVisible(true);
 		numWordspasslbl.setVisible(false);
@@ -1150,6 +1172,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //		
 		btnGeneratePass.setVisible(false);
 		btnGenerateTokenDate.setVisible(true);
+		//btnGeneratePWforTD.setVisible(false);
 		minPWlenlbl.setVisible(true);
 		maxPWlenlbl.setVisible(true);
 		numWordspasslbl.setVisible(true);
