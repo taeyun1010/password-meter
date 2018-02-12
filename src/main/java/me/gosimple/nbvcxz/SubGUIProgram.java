@@ -393,7 +393,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			String gverifier = tfverifierGmail.getText();
 			String gmailcontent = "";
 			try {
-				gmailcontent = GoogleGetGmail.getGmail(gverifier);
+				gmailcontent = GoogleGetGmail.getGmail(gverifier, this);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

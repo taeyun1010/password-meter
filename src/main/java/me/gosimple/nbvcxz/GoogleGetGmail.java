@@ -11,6 +11,7 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
 import java.awt.Desktop;
+import java.awt.Label;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -86,7 +87,7 @@ public class GoogleGetGmail {
 		}
 	}
 
-	public static String getGmail(final String verifier) throws IOException, InterruptedException, ExecutionException {
+	public static String getGmail(final String verifier, SubGUIProgram subgui) throws IOException, InterruptedException, ExecutionException {
 		// System.out.println("And paste the authorization code here");
 		// System.out.print(">>");
 		// final String code = in.nextLine();
@@ -151,7 +152,13 @@ public class GoogleGetGmail {
 		
 		String allcontent = "";
 		
+		subgui.add(new Label("found a total of " + emails.length() + " gmails"));
+		subgui.setVisible(true);
+		Label gmailcount = new Label("processing 0th gmail...");
+		subgui.add(gmailcount);
+		subgui.setVisible(true);
 		for (int i = 0; i < emails.length(); i++) {
+			gmailcount.setText("processing " + (i+1) + "th gmail");
 			JSONObject email = emails.getJSONObject(i);
 			String id = email.getString("id");
 			requestUrl = "https://www.googleapis.com/gmail/v1/users/me/messages/" + id;
