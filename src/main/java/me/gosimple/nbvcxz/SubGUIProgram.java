@@ -74,7 +74,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	// component
 	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal,
 			btnAllowGmail, btnNotAllowGmail, btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets,
-			btnAllowTweets, btnTVerifierGmail, btnConvert, btnAbort; // Declare a Button
+			btnAllowTweets, btnTVerifierGmail, btnConvert, btnAbort, btnGenerateTokenDate, btnGeneratePass; // Declare a Button
 
 	private Checkbox hanCheckbox;
 	
@@ -324,43 +324,52 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnNotAllowGmail) {
-			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
-			tfpwMinLen = new TextField("", 1); // Construct the TextField
-			tfpwMinLen.setEditable(true);
-			add(tfpwMinLen);
+			btnGeneratePass = new Button("Generate passphrase");
+			add(btnGeneratePass);
+			btnGeneratePass.addActionListener(this);
 			
-			add(new Label("Enter Max pw length")); // "super" Frame adds an anonymous Label
-			tfpwMaxLen = new TextField("", 2); // Construct the TextField
-			tfpwMaxLen.setEditable(true);
-			add(tfpwMaxLen);
+			btnGenerateTokenDate = new Button("Generate token + date");
+			add(btnGenerateTokenDate);
+			btnGenerateTokenDate.addActionListener(this);
 			
-			add(new Label("Enter number of words to be used in passphrase")); // "super" Frame adds an anonymous Label
-			tfnumWords = new TextField("", 1); // Construct the TextField
-			tfnumWords.setEditable(true);
-			add(tfnumWords);
-			
-			add(new Label("Enter a delimeter to be used in passphrase")); // "super" Frame adds an anonymous Label
-			tfdelimeter = new TextField("", 1); // Construct the TextField
-			tfdelimeter.setEditable(true);
-			add(tfdelimeter);
-			
-			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
-			tfminEntropy = new TextField("", 2); // Construct the TextField
-			tfminEntropy.setEditable(true);
-			add(tfminEntropy);
-			
-			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
-			add(hanCheckbox); // "super" Frame adds an anonymous Label
-		
-			
-			
-			btnGenerate = new Button("Generate"); // Construct the Button
-			add(btnGenerate); // "super" Frame adds Button
-			btnGenerate.addActionListener(this);
-			tfSuggestedPW = new TextField("", 40); // Construct the TextField
-			tfSuggestedPW.setEditable(false);
-			add(tfSuggestedPW);
-			setVisible(true); // "super" Frame shows
+			setVisible(true);
+//			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
+//			tfpwMinLen = new TextField("", 1); // Construct the TextField
+//			tfpwMinLen.setEditable(true);
+//			add(tfpwMinLen);
+//			
+//			add(new Label("Enter Max pw length")); // "super" Frame adds an anonymous Label
+//			tfpwMaxLen = new TextField("", 2); // Construct the TextField
+//			tfpwMaxLen.setEditable(true);
+//			add(tfpwMaxLen);
+//			
+//			add(new Label("Enter number of words to be used in passphrase")); // "super" Frame adds an anonymous Label
+//			tfnumWords = new TextField("", 1); // Construct the TextField
+//			tfnumWords.setEditable(true);
+//			add(tfnumWords);
+//			
+//			add(new Label("Enter a delimeter to be used in passphrase")); // "super" Frame adds an anonymous Label
+//			tfdelimeter = new TextField("", 1); // Construct the TextField
+//			tfdelimeter.setEditable(true);
+//			add(tfdelimeter);
+//			
+//			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
+//			tfminEntropy = new TextField("", 2); // Construct the TextField
+//			tfminEntropy.setEditable(true);
+//			add(tfminEntropy);
+//			
+//			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
+//			add(hanCheckbox); // "super" Frame adds an anonymous Label
+//		
+//			
+//			
+//			btnGenerate = new Button("Generate"); // Construct the Button
+//			add(btnGenerate); // "super" Frame adds Button
+//			btnGenerate.addActionListener(this);
+//			tfSuggestedPW = new TextField("", 40); // Construct the TextField
+//			tfSuggestedPW.setEditable(false);
+//			add(tfSuggestedPW);
+//			setVisible(true); // "super" Frame shows
 		}
 		
 		if (evt.getSource() == btnAllowGmail) {
@@ -412,42 +421,53 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			
 			add(new Label("Gmail search complete"));
 			
-			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
-			tfpwMinLen = new TextField("", 1); // Construct the TextField
-			tfpwMinLen.setEditable(true);
-			add(tfpwMinLen);
+			//
+			btnGeneratePass = new Button("Generate passphrase");
+			add(btnGeneratePass);
+			btnGeneratePass.addActionListener(this);
 			
-			add(new Label("Enter Max pw length")); // "super" Frame adds an anonymous Label
-			tfpwMaxLen = new TextField("", 2); // Construct the TextField
-			tfpwMaxLen.setEditable(true);
-			add(tfpwMaxLen);
+			btnGenerateTokenDate = new Button("Generate token + date");
+			add(btnGenerateTokenDate);
+			btnGenerateTokenDate.addActionListener(this);
 			
-			add(new Label("Enter number of words to be used in passphrase")); // "super" Frame adds an anonymous Label
-			tfnumWords = new TextField("", 1); // Construct the TextField
-			tfnumWords.setEditable(true);
-			add(tfnumWords);
+			setVisible(true);
 			
-			add(new Label("Enter a delimeter to be used in passphrase")); // "super" Frame adds an anonymous Label
-			tfdelimeter = new TextField("", 1); // Construct the TextField
-			tfdelimeter.setEditable(true);
-			add(tfdelimeter);
-			
-			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
-			tfminEntropy = new TextField("", 2); // Construct the TextField
-			tfminEntropy.setEditable(true);
-			add(tfminEntropy);
-			
-			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
-			add(hanCheckbox); // "super" Frame adds an anonymous Label
-		
-			
-			btnGenerate = new Button("Generate"); // Construct the Button
-			add(btnGenerate); // "super" Frame adds Button
-			btnGenerate.addActionListener(this);
-			tfSuggestedPW = new TextField("", 40); // Construct the TextField
-			tfSuggestedPW.setEditable(false);
-			add(tfSuggestedPW);
-			setVisible(true); // "super" Frame shows
+//			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
+//			tfpwMinLen = new TextField("", 1); // Construct the TextField
+//			tfpwMinLen.setEditable(true);
+//			add(tfpwMinLen);
+//			
+//			add(new Label("Enter Max pw length")); // "super" Frame adds an anonymous Label
+//			tfpwMaxLen = new TextField("", 2); // Construct the TextField
+//			tfpwMaxLen.setEditable(true);
+//			add(tfpwMaxLen);
+//			
+//			add(new Label("Enter number of words to be used in passphrase")); // "super" Frame adds an anonymous Label
+//			tfnumWords = new TextField("", 1); // Construct the TextField
+//			tfnumWords.setEditable(true);
+//			add(tfnumWords);
+//			
+//			add(new Label("Enter a delimeter to be used in passphrase")); // "super" Frame adds an anonymous Label
+//			tfdelimeter = new TextField("", 1); // Construct the TextField
+//			tfdelimeter.setEditable(true);
+//			add(tfdelimeter);
+//			
+//			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
+//			tfminEntropy = new TextField("", 2); // Construct the TextField
+//			tfminEntropy.setEditable(true);
+//			add(tfminEntropy);
+//			
+//			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
+//			add(hanCheckbox); // "super" Frame adds an anonymous Label
+//		
+//			
+//			btnGenerate = new Button("Generate"); // Construct the Button
+//			add(btnGenerate); // "super" Frame adds Button
+//			btnGenerate.addActionListener(this);
+//			tfSuggestedPW = new TextField("", 40); // Construct the TextField
+//			tfSuggestedPW.setEditable(false);
+//			add(tfSuggestedPW);
+//			setVisible(true); // "super" Frame shows
 
 		}
 		
@@ -494,7 +514,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				add(tweetlbl);
 				setVisible(true);
 				for (int i = 0; i < n; ++i) {
-					tweetlbl.setText("processing " + (i+1) + "th liked Tweet");
+					tweetlbl.setText("processing " + (i+1) + "th liked Tweet...");
 					final JSONObject responseObj = responseArray.getJSONObject(i);
 
 					// print the written tweet itself, the name of the person who wrote it, and
@@ -579,7 +599,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				add(ptweetlbl);
 				setVisible(true);
 				for (int i = 0; i < n; ++i) {
-					ptweetlbl.setText("processing " + (i+1) + "th personal Tweet");
+					ptweetlbl.setText("processing " + (i+1) + "th personal Tweet...");
 					final JSONObject responseObj = responseArray.getJSONObject(i);
 
 					// print the written tweet itself, the name of the person who wrote it, and
@@ -690,6 +710,49 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			//mustAbort = true;
 			t.interrupt();
 			//t = null;
+		}
+		
+		if (evt.getSource() == btnGenerateTokenDate) {
+			
+		}
+		
+		if (evt.getSource() == btnGeneratePass) {
+			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
+			tfpwMinLen = new TextField("", 1); // Construct the TextField
+			tfpwMinLen.setEditable(true);
+			add(tfpwMinLen);
+			
+			add(new Label("Enter Max pw length")); // "super" Frame adds an anonymous Label
+			tfpwMaxLen = new TextField("", 2); // Construct the TextField
+			tfpwMaxLen.setEditable(true);
+			add(tfpwMaxLen);
+			
+			add(new Label("Enter number of words to be used in passphrase")); // "super" Frame adds an anonymous Label
+			tfnumWords = new TextField("", 1); // Construct the TextField
+			tfnumWords.setEditable(true);
+			add(tfnumWords);
+			
+			add(new Label("Enter a delimeter to be used in passphrase")); // "super" Frame adds an anonymous Label
+			tfdelimeter = new TextField("", 1); // Construct the TextField
+			tfdelimeter.setEditable(true);
+			add(tfdelimeter);
+			
+			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
+			tfminEntropy = new TextField("", 2); // Construct the TextField
+			tfminEntropy.setEditable(true);
+			add(tfminEntropy);
+			
+			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
+			add(hanCheckbox); // "super" Frame adds an anonymous Label
+		
+			
+			btnGenerate = new Button("Generate"); // Construct the Button
+			add(btnGenerate); // "super" Frame adds Button
+			btnGenerate.addActionListener(this);
+			tfSuggestedPW = new TextField("", 40); // Construct the TextField
+			tfSuggestedPW.setEditable(false);
+			add(tfSuggestedPW);
+			setVisible(true); // "super" Frame shows
 		}
 		
 		if (evt.getSource() == btnGenerate) {
