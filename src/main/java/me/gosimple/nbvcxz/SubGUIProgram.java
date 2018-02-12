@@ -809,12 +809,15 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		if (evt.getSource() == btnGenerateTokenDate) {
 
 			patternOption = "tokendate";
+			
+			TokenDateGUI tdgui = new TokenDateGUI(this, userdata, userdataDic);
+			
 			//if never set up
-			if(neverSetUp == true) {
-				setupPWrequirement();
-				neverSetUp = false;
-			}
-			createPWrequirementTokenDate();
+//			if(neverSetUp == true) {
+//				setupPWrequirement();
+//				neverSetUp = false;
+//			}
+//			createPWrequirementTokenDate();
 		}
 		
 		if (evt.getSource() == btnGeneratePass) {
