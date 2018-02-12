@@ -158,7 +158,7 @@ public class GoogleGetGmail {
 		subgui.add(gmailcount);
 		subgui.setVisible(true);
 		for (int i = 0; i < emails.length(); i++) {
-			gmailcount.setText("processing " + (i+1) + "th gmail");
+			gmailcount.setText("processing " + (i+1) + "th gmail...");
 			JSONObject email = emails.getJSONObject(i);
 			String id = email.getString("id");
 			requestUrl = "https://www.googleapis.com/gmail/v1/users/me/messages/" + id;

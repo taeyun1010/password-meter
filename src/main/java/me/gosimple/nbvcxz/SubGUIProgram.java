@@ -80,7 +80,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	
 	private volatile Thread t, gmailThread;
 	
-	private Label numLoopslbl, currentLooplbl, entropylbl, generatelbl, highlbl;
+	private Label numLoopslbl, currentLooplbl, entropylbl, generatelbl, highlbl, ptweetlbl, tweetlbl, textfilelbl, pdffilelbl;
 	
 	private boolean numLoopslblset, currentLooplblset, entropylblset, generatelblset, highlblset, btnAbortset = false;
 	
@@ -101,6 +101,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	
 	//maximum length of password it can be
 	private int pwMaxLen;
+	
+	private int textfileCounter;
+	private int pdffileCounter;
 	
 	//if Hanguel, converted to English, is to be included in the password or not
 	boolean includeHan;
@@ -485,7 +488,13 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				JSONArray responseArray = new JSONArray(bodyOfResponse);
 				// System.out.println(responseArray);
 				final int n = responseArray.length();
+				add(new Label("found a total of " + n + " liked Tweets"));
+				setVisible(true);
+				tweetlbl = new Label("processing 0th liked Tweet...");
+				add(tweetlbl);
+				setVisible(true);
 				for (int i = 0; i < n; ++i) {
+					tweetlbl.setText("processing " + (i+1) + "th liked Tweet");
 					final JSONObject responseObj = responseArray.getJSONObject(i);
 
 					// print the written tweet itself, the name of the person who wrote it, and
@@ -564,7 +573,13 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				JSONArray responseArray = new JSONArray(bodyOfResponse);
 				System.out.println(responseArray);
 				final int n = responseArray.length();
+				add(new Label("found a total of " + n + " personal Tweets"));
+				setVisible(true);
+				ptweetlbl = new Label("processing 0th personal Tweet...");
+				add(ptweetlbl);
+				setVisible(true);
 				for (int i = 0; i < n; ++i) {
+					ptweetlbl.setText("processing " + (i+1) + "th personal Tweet");
 					final JSONObject responseObj = responseArray.getJSONObject(i);
 
 					// print the written tweet itself, the name of the person who wrote it, and
@@ -1452,8 +1467,19 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
 		Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" }, true);
 
+		add(new Label("found a total of " + textfiles.size() + " text files"));
+		add(new Label("found a total of " + pdffiles.size() + " pdf files"));
+		textfileCounter = 0;
+		pdffileCounter =0;
+		textfilelbl = new Label("processing 0th text file...");
+		pdffilelbl = new Label("processing 0th pdf file...");
+		
+		add(textfilelbl);
+		setVisible(true);
 		textfiles.forEach(file -> {
 
+			textfileCounter++;
+			textfilelbl.setText("processing " + textfileCounter + "th text file...");
 			try {
 				userdata = readtxtfile(file, userdata);
 			} catch (FileNotFoundException e) {
@@ -1466,7 +1492,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 		});
 
+		add(pdffilelbl);
+		setVisible(true);
 		pdffiles.forEach(file -> {
+			pdffileCounter++;
+			pdffilelbl.setText("processing " + pdffileCounter + "th pdf file...");
 			try {
 				userdata = extractpdf(file, userdata);
 			} catch (IOException e) {
