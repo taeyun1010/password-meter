@@ -19,6 +19,7 @@ import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -48,6 +50,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.python.util.PythonInterpreter;
 
+import me.gosimple.nbvcxz.matching.DateMatcher;
+import me.gosimple.nbvcxz.matching.match.Match;
 import me.gosimple.nbvcxz.resources.Dictionary;
 import me.gosimple.nbvcxz.resources.DictionaryUtil;
 import me.gosimple.nbvcxz.resources.Generator;
@@ -91,13 +95,15 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			btnAllowTweets, btnTVerifierGmail, btnConvert, btnAbort, btnGeneratePass; // Declare a Button
 
 	
-	private volatile Thread t, gmailThread;
+	private volatile Thread t, gmailThread, TDthread;
 	
 	private boolean neverSetUp = true;
 	
 	private Label numLoopslbl, currentLooplbl, entropylbl, generatelbl, highlbl, ptweetlbl, tweetlbl, textfilelbl, pdffilelbl, localfilelbl;
 	
 	private Label likedTlbl = new Label("Search liked tweets?");
+	
+	private Label nodatefoundlbl = new Label("no date pattern found, try different pattern, or collect more userdata");
 	
 	private Label localFileCompllbl = new Label("Local file search complete");
 	
@@ -128,7 +134,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	public Nbvcxz nbvcxz;
 	
 	// characters that should not appear in generated password
-	private char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
+	private static char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
 			'\\', '|', '-', '_', '=', '+'};
 
 	private Set<String> generatedPWs = new HashSet<String>();
@@ -814,16 +820,22 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		if (evt.getSource() == btnGeneratePass) {
 
 			patternOption = "passphrase";
-			if(neverSetUp == true) {
-				setupPWrequirement();
-				neverSetUp = false;
-			}
-			createPWrequirement();
+			
+			PassphraseGUI passgui =  new PassphraseGUI(this, userdata, userdataDic);
+			
+//			
+//			if(neverSetUp == true) {
+//				setupPWrequirement();
+//				neverSetUp = false;
+//			}
+//			createPWrequirement();
 		}
 		
 		if (evt.getSource() == btnGenerate) {
+			nodatefoundlbl.setVisible(false);
 			// token date pattern
 			if (patternOption == "tokendate") {
+				generateTDpw();
 				return;
 			}
 			
@@ -833,7 +845,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			else {
 				btnAbort = new Button("Abort"); // Construct the Button
 				add(btnAbort); // "super" Frame adds Button
-				setVisible(true);
+				btnAbort.setVisible(true);
 				btnAbort.addActionListener(this);
 				btnAbortset = true;
 			}
@@ -1112,6 +1124,311 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	}
 
+	private void generateTDpw() {
+		TDthread = new Thread(new Runnable() {
+			
+			public void run() {
+		
+				// if userdata was not collected at all, use nbvcxz's default generetor, for
+				// now.
+				String suggestedPW = "";
+				
+				
+				int minLength = Integer.parseInt(tfpwMinLen.getText());
+				int maxLength = Integer.parseInt(tfpwMaxLen.getText());
+				int minEntropy = Integer.parseInt(tfminEntropy.getText());
+				
+				if (userdata.equals("")) {
+					while(true) {
+						suggestedPW = Generator.generatePassphrase("l", 3);
+						if ((suggestedPW.length() >= minLength) && (suggestedPW.length() <= maxLength)) {
+							break;
+						}
+					}
+				} 
+				else {
+
+					// only if userdataDic was not filled before
+					if (userdataDic == null) {
+						userdataDic = processUserData(userdata);
+						printToUserDatatxt(userdataDic);
+						System.out.println("userdata = " + userdata);
+						add(new Label("created file userdataForProject11111.txt"));
+						add(new Label("in Documents folder"));
+						setVisible(true);
+					}
+					
+					//suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
+					
+					
+					Nbvcxz nbvcxz = new Nbvcxz();
+//					Double entropy = nbvcxz.estimate(suggestedPW).getEntropy();
+//					//if zxcvbn returns a password strength lower than threshold, generate different password
+//					// set threshold to 100 for now
+//					while(entropy < 100) {
+//						suggestedPW = Generator.generatePassphrase("l", 3, userdataDic);
+//						entropy = nbvcxz.estimate(suggestedPW).getEntropy();
+//						//System.out.println("generated password = " + suggestedPW);
+//						//System.out.println("entropy = " + entropy);
+//					}
+					String meaningOfHanguel = "";
+					Double entropy = 0.000;
+
+					final int high = userdataDic.getDictonary().size();
+					
+					if(highlblset == true) {
+						highlbl.setText("Number of Words in userdata dictionary : " + high);
+					}
+					else {
+						highlbl = new Label("Number of Words in userdata dictionary : " + high);
+						add(highlbl);
+						setVisible(true);
+						highlblset = true;
+					}
+
+					//reverse order; most infrequent ones first
+					Map<String, Integer> sortedDic = sortByValue(userdataDic.getDictonary());
+					//List<String> userdataWords = new ArrayList<String>(sortedDic.value);
+					
+					 List<Match> matches = new ArrayList<>();
+					 DateMatcher datematcher = new DateMatcher();
+					 
+					 for (int i=0; i < high; i++) {
+						 int rank = i+1;
+						 String word = getKeyByValue(sortedDic, rank);
+						 matches.addAll(datematcher.match(nbvcxz.getConfiguration(), word));
+						 if (matches.size() != 0) {
+							 break;
+						 }
+					 }
+					 	 
+					 
+//					 for (Map.Entry<String, Integer> entry : sortedDic.entrySet())
+//					 {
+//						 matches.addAll(datematcher.match(nbvcxz.getConfiguration(), entry.getKey()));
+//					 }
+//					 
+//					 for (int i=0; i< matches.size(); i++) {
+//						 System.out.println("token : " + matches.get(i).getToken());
+//						 System.out.println(matches.get(i).getDetails());
+//						 System.out.println("\n");
+//					 }
+					 
+					 //if no date pattern is found, return immediately
+					 if(matches.size() == 0) {
+						 System.out.println("no date pattern found");
+						 tfSuggestedPW.setText("");
+						 
+						 add(nodatefoundlbl);
+						 setVisible(true);
+						 return;
+						 
+					 }
+					 
+					 String date = matches.get(0).getToken();
+//					//if actual numLoops returns greater than 214783647 (max int value possible)
+//					// it is set to 214783647
+//					int numLoops = (int) Math.pow(high, numWords);
+//					
+//					if (numLoopslblset == true) {
+//						numLoopslbl.setText("Max Number of loops to be iterated : " + numLoops);
+//					}
+//
+//					else {
+//						numLoopslbl = new Label("Max Number of loops to be iterated : " + numLoops);
+//						add(numLoopslbl);
+//						setVisible(true);
+//						numLoopslblset = true;
+//					}
+//					if (currentLooplblset == true) {
+//						currentLooplbl.setText("currently doing 0th loop");
+//					} 
+//					else {
+//						currentLooplbl = new Label("currently doing 0th loop");
+//						add(currentLooplbl);
+//						setVisible(true);
+//						currentLooplblset = true;
+//					}
+//					
+//					for (int j = 0; j < numLoops; j++) {
+////						if (mustAbort == true) {
+////							currentLooplbl.setText("Abort button pressed.");
+////							return;
+////						}
+//						if (Thread.currentThread().isInterrupted()) {
+//							currentLooplbl.setText("Abort button pressed.");
+//							return;
+//						}
+//						currentLooplbl.setText("currently doing " + j + "th loop");
+//						
+//						suggestedPW = "";
+//						for (int k=1; k <= numWords; k++) {
+//							//if k == numWords, need remainder rather than quotient
+//							if (k == numWords) {
+//								suggestedPW = suggestedPW + getKeyByValue(sortedDic, (j % k) + 1);
+//							}
+//							//else need quotient
+//							else {
+//								int expon = numWords - k;
+//								int rank = j / ((int)Math.pow(numWords, expon));
+//								//since rank starts counting from 1
+//								rank =rank +1;
+//								suggestedPW = suggestedPW + getKeyByValue(sortedDic, rank);
+//								suggestedPW = suggestedPW + delimeter;
+//							}
+//						
+//						}
+//						
+//						// if this pw was already generated before
+//						// if (!generatedPWs.isEmpty()) {
+//						if (generatedPWs.contains(suggestedPW)) {
+//							continue;
+//						}
+//						// }
+//						
+//						//suggestedPW = Generator.generatePassphrase(delimeter, numWords, userdataDic);
+//						String originalPass = suggestedPW;
+//						// if suggestedPW contains Hanguel, convert to English and inform user
+//						String[] words = suggestedPW.split(delimeter);
+//						suggestedPW = "";
+//						meaningOfHanguel = "";
+//						if (hanCheckbox.getState() == false) {
+//							// if at least one of the words contain at least one Hanguel char, try different
+//							// password
+//							boolean tryDiffpw = false;
+//							for (String word : words) {
+//								//
+//
+//								for (int i = 0; i < word.length(); i++) {
+//									char letter = word.charAt(i);
+//									String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
+//									// System.out.println( "\\u" + unicodeStr);
+//									int unicode = Integer.parseInt(unicodeStr, 16);
+//									if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
+//										tryDiffpw = true;
+//									}
+//
+//								}
+//
+//							}
+//							if (tryDiffpw == true) {
+//								continue;
+//							} else {
+//								suggestedPW = originalPass;
+//							}
+//						} else {
+//
+//							for (String word : words) {
+//								// convert only if at least one character in this word is Hanguel
+//								boolean mustBeConverted = false;
+//								for (int i = 0; i < word.length(); i++) {
+//									char letter = word.charAt(i);
+//									String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
+//									// System.out.println( "\\u" + unicodeStr);
+//									int unicode = Integer.parseInt(unicodeStr, 16);
+//									if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
+//										mustBeConverted = true;
+//									}
+//
+//								}
+//
+//								// if it has to be converted
+//								if (mustBeConverted == true) {
+//									// since convertToEng is defined only for Hanguel, scan every char, and call
+//									// converToEng only if it is Hanguel
+//									String originalWord = word;
+//									String convertedWord = "";
+//									for (int i = 0; i < word.length(); i++) {
+//										char letter = word.charAt(i);
+//										String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
+//										// System.out.println( "\\u" + unicodeStr);
+//										int unicode = Integer.parseInt(unicodeStr, 16);
+//										if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
+//											convertedWord = convertedWord + convertToEng(Character.toString(letter));
+//										} else {
+//											convertedWord = convertedWord + Character.toString(letter);
+//										}
+//
+//									}
+//									// word = convertToEng(word);
+//									meaningOfHanguel = meaningOfHanguel + convertedWord + " stands for " + originalWord
+//											+ "    ";
+//
+//									word = convertedWord;
+//								}
+//								suggestedPW = suggestedPW + word + delimeter;
+//
+//							}
+//
+//						}
+//
+//						// if length requirement specified by the user is not met
+//						// TODO: get rid of infinite loop caused by no password possible meeting the
+//						// length requirement
+//						if (!((suggestedPW.length() >= minLength) && (suggestedPW.length() <= maxLength))) {
+//							continue;
+//						}
+//
+//						entropy = nbvcxz.estimate(suggestedPW).getEntropy();
+//						// if zxcvbn returns a password strength lower than the threshold user specified, generate
+//						// a different password
+//						if (entropy >= minEntropy) {
+//							System.out.println(meaningOfHanguel);
+//							break;
+//							// System.out.println("generated password = " + suggestedPW);
+//							// System.out.println("entropy = " + entropy);
+//						}
+//						
+//						//tried all possible passwords, none passed
+//						if (j == (numLoops - 1)) {
+//							tfSuggestedPW.setText("");
+//							add(new Label("no password possible, try different setting"));
+//							setVisible(true);
+//							return;
+//						}
+//					}
+
+					//
+
+					System.out.println("generated password = " + suggestedPW);
+
+					System.out.println("entropy = " + entropy);
+					//
+//					printToUserDatatxt(userdataDic);
+					
+					if (!(meaningOfHanguel == "")) {
+						add(new Label(meaningOfHanguel));
+					}
+					if (entropylblset == true) {
+						entropylbl.setText("zxcvbn entropy = " + entropy);
+					}
+					else {
+						entropylbl = new Label("zxcvbn entropy = " + entropy);
+						add(entropylbl);
+						setVisible(true);
+						entropylblset = true;
+					}
+					
+				}
+				
+				tfSuggestedPW.setText(suggestedPW);
+				generatedPWs.add(suggestedPW);
+				if(generatelblset == true) {
+					//do nothing
+				}
+				else {
+					generatelbl = new Label("click generate button again to try different password");
+					add(generatelbl);
+					setVisible(true);
+					generatelblset = true;
+				}
+				//btnAbort.setVisible(false);
+				
+			}	
+		});
+		TDthread.start();
+	}
+
 	private void setupPWrequirement() {
 		add(minPWlenlbl); // "super" Frame adds an anonymous Label
 		tfpwMinLen.setEditable(true);
@@ -1200,7 +1517,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	    return null;
 	}
 	
-	private String convertToEng(String hanguel) {
+	static String convertToEng(String hanguel) {
 		String result = "";
         //System.out.println(hanguel);
         //String hanguelLetters = Normalizer.normalize(hanguel, Normalizer.Form.NFD);
@@ -1216,7 +1533,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
         return result;
     }
 	
-	private String convertToEngHelper(char hanguelLetter) {
+	private static String convertToEngHelper(char hanguelLetter) {
 		String partialResult = "";
 		
 		//
@@ -1467,7 +1784,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		return partialResult;
 	}
 	
-	private void printToUserDatatxt(Dictionary userdataDic2) {
+	static void printToUserDatatxt(Dictionary userdataDic2) {
 		 // get path to documents folder
 		String myDocuments = null;
 
@@ -1518,7 +1835,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	}
 
 	// TODO: process user data in extractUserData() to speed up?
-	private Dictionary processUserData(String userdata) {
+	static Dictionary processUserData(String userdata) {
 
 		// key value
 		Map<String, Integer> map = new HashMap<String, Integer>();
