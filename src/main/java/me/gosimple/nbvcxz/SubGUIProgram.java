@@ -78,6 +78,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	private Checkbox hanCheckbox;
 	
+	private Label numLoopslbl, currentLooplbl, entropylbl, generatelbl, highlbl;
+	
+	private boolean numLoopslblset, currentLooplblset, entropylblset, generatelblset, highlblset = false;
+	
 	// component
 	public Nbvcxz nbvcxz;
 	
@@ -716,6 +720,16 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				Double entropy = 0.000;
 
 				final int high = userdataDic.getDictonary().size();
+				
+				if(highlblset == true) {
+					highlbl.setText("Number of Words in userdata dictionary : " + high);
+				}
+				else {
+					highlbl = new Label("Number of Words in userdata dictionary : " + high);
+					add(highlbl);
+					setVisible(true);
+					highlblset = true;
+				}
 
 				//reverse order; most infrequent ones first
 				Map<String, Integer> sortedDic = sortByValue(userdataDic.getDictonary());
@@ -726,9 +740,28 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				// it is set to 214783647
 				int numLoops = (int) Math.pow(high, numWords);
 				
-				
-				
+				if (numLoopslblset == true) {
+					numLoopslbl.setText("Max Number of loops to be iterated : " + numLoops);
+				}
+
+				else {
+					numLoopslbl = new Label("Max Number of loops to be iterated : " + numLoops);
+					add(numLoopslbl);
+					setVisible(true);
+					numLoopslblset = true;
+				}
+				if (currentLooplblset == true) {
+					currentLooplbl.setText("currently doing 0th loop");
+				} 
+				else {
+					currentLooplbl = new Label("currently doing 0th loop");
+					add(currentLooplbl);
+					setVisible(true);
+					currentLooplblset = true;
+				}
 				for (int j = 0; j < numLoops; j++) {
+					currentLooplbl.setText("currently doing " + j + "th loop");
+					
 					suggestedPW = "";
 					for (int k=1; k <= numWords; k++) {
 						//if k == numWords, need remainder rather than quotient
@@ -867,18 +900,29 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				if (!(meaningOfHanguel == "")) {
 					add(new Label(meaningOfHanguel));
 				}
-				add(new Label("entropy = " + entropy));
+				if (entropylblset == true) {
+					entropylbl.setText("entropy = " + entropy);
+				}
+				else {
+					entropylbl = new Label("entropy = " + entropy);
+					add(entropylbl);
+					setVisible(true);
+					entropylblset = true;
+				}
 				
-				
-//				add(new Label("created file userdataForProject11111.txt"));
-//				add(new Label("in Documents folder"));
-				setVisible(true);
 			}
 			
 			tfSuggestedPW.setText(suggestedPW);
 			generatedPWs.add(suggestedPW);
-			add(new Label("click generate button again to try different password"));
-			setVisible(true);
+			if(generatelblset == true) {
+				//do nothing
+			}
+			else {
+				generatelbl = new Label("click generate button again to try different password");
+				add(generatelbl);
+				setVisible(true);
+				generatelblset = true;
+			}
 			
 		}
 
