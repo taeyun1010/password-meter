@@ -69,18 +69,51 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	// A Java class can extend only one superclass, but it can implement multiple
 	// interfaces.
 
-	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfSuggestedPW, tfverifierptweets, tfverifierGmail,
-			tfHanguel, tfEnglish, tfpwMinLen, tfpwMaxLen, tfnumWords, tfdelimeter, tfminEntropy; // Declare a TextField
+	public TextField tfCount1, tfCount2, tfCount3, tfCount4, tfverifierptweets, tfverifierGmail,
+			tfHanguel, tfEnglish; // Declare a TextField
+	
+	private TextField tfpwMinLen = new TextField("", 1);
+	private TextField tfpwMaxLen = new TextField("", 2);
+	private TextField tfnumWords = new TextField("", 1);
+	private TextField tfdelimeter = new TextField("", 1);
+	private TextField tfminEntropy = new TextField("", 2);
+	private TextField tfSuggestedPW = new TextField("", 40);
+	private Checkbox hanCheckbox = new Checkbox("Include Hanguel in passwords?");
+	private Button btnGenerate = new Button("Generate");
 	// component
-	private Button btnGenerate, btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal,
+	private Button btnTVerifier, btnLocalFile, btnNoLocalFile, btnGetTweets, btnTVerifierPersonal,
 			btnAllowGmail, btnNotAllowGmail, btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets,
 			btnAllowTweets, btnTVerifierGmail, btnConvert, btnAbort, btnGenerateTokenDate, btnGeneratePass; // Declare a Button
 
-	private Checkbox hanCheckbox;
 	
 	private volatile Thread t, gmailThread;
 	
-	private Label numLoopslbl, currentLooplbl, entropylbl, generatelbl, highlbl, ptweetlbl, tweetlbl, textfilelbl, pdffilelbl;
+	private boolean neverSetUp = true;
+	
+	private Label numLoopslbl, currentLooplbl, entropylbl, generatelbl, highlbl, ptweetlbl, tweetlbl, textfilelbl, pdffilelbl, localfilelbl;
+	
+	private Label likedTlbl = new Label("Search liked tweets?");
+	
+	private Label localFileCompllbl = new Label("Local file search complete");
+	
+	private Label tverifierlbl = new Label("Enter Twitter verifier");
+	private Label likedTCompllbl = new Label("Liked Tweet search complete");
+	
+	private Label verGmaillbl = new Label("Enter verifier for Gmail");
+
+	private Label searchPtweetlbl = new Label("Search written tweets?");
+	private Label searchGmaillbl = new Label("Search Gmail?");
+	
+	private Label minPWlenlbl = new Label("Enter Min pw length");
+	
+	private Label maxPWlenlbl = new Label("Enter Max pw length");
+	
+	private Label numWordspasslbl = new Label("Enter number of words to be used in passphrase");
+	
+	private Label delpasslbl = new Label("Enter a delimeter to be used in passphrase");
+	
+	private Label minentropylbl = new Label("Enter minimum zxcvbn entropy password must have");
+	
 	
 	private boolean numLoopslblset, currentLooplblset, entropylblset, generatelblset, highlblset, btnAbortset = false;
 	
@@ -89,7 +122,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	
 	// characters that should not appear in generated password
 	private char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
-			'\\', '|', '-', '_', '=', '+', '\'', '"' };
+			'\\', '|', '-', '_', '=', '+'};
 
 	private Set<String> generatedPWs = new HashSet<String>();
 	
@@ -197,7 +230,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		tfEnglish.setEditable(false);
 		add(tfEnglish);
 		
-		add(new Label("Search Local Files?")); // "super" Frame adds an anonymous Label
+		localfilelbl = new Label("Search local files?");
+		add(localfilelbl); // "super" Frame adds an anonymous Label
 
 		btnLocalFile = new Button("Yes"); // Construct the Button
 		add(btnLocalFile); // "super" Frame adds Button
@@ -233,7 +267,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 
 		if (evt.getSource() == btnNoLocalFile) {
-			add(new Label("Search liked tweets?"));
+			btnLocalFile.setVisible(false);
+			btnNoLocalFile.setVisible(false);
+			localfilelbl.setVisible(false);
+			
+			add(likedTlbl);
 			btnAllowLikedTweets = new Button("Yes");
 			add(btnAllowLikedTweets);
 			btnAllowLikedTweets.addActionListener(this);
@@ -244,7 +282,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 
 		if (evt.getSource() == btnLocalFile) {
-
+			btnLocalFile.setVisible(false);
+			btnNoLocalFile.setVisible(false);
+			localfilelbl.setVisible(false);
+			
 			// get userdata, only if userdata was not extracted before
 			if (userdata.equals("")) {
 				add(new Label("Extracting userdata..."));
@@ -254,9 +295,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				userdata = extractUserData();
 
 			}
-			add(new Label("Local File Search Complete"));
+			
+			add(localFileCompllbl);
 
-			add(new Label("Search liked tweets?"));
+			add(likedTlbl);
 			btnAllowLikedTweets = new Button("Yes");
 			add(btnAllowLikedTweets);
 			btnAllowLikedTweets.addActionListener(this);
@@ -267,6 +309,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 
 		if (evt.getSource() == btnNotAllowLikedTweets) {
+			likedTlbl.setVisible(false);
+			localFileCompllbl.setVisible(false);
+			btnAllowLikedTweets.setVisible(false);
+			btnNotAllowLikedTweets.setVisible(false);
+			
 			add(new Label("Search written tweets?"));
 			btnAllowTweets = new Button("Yes");
 			btnAllowTweets.addActionListener(this);
@@ -279,6 +326,11 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 
 		if (evt.getSource() == btnAllowTweets) {
+
+			searchPtweetlbl.setVisible(false);
+			likedTCompllbl.setVisible(false);
+			btnAllowTweets.setVisible(false);
+			btnNotAllowTweets.setVisible(false);
 			try {
 				TwitterGetAllTweets.openBrowser(this);
 			} catch (IOException e) {
@@ -304,6 +356,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 
 		if (evt.getSource() == btnNotAllowTweets) {
+			searchPtweetlbl.setVisible(false);
+			likedTCompllbl.setVisible(false);
+			btnAllowTweets.setVisible(false);
+			btnNotAllowTweets.setVisible(false);
 //			add(new Label("Generate?")); // "super" Frame adds an anonymous Label
 //
 //			btnGenerate = new Button("Generate"); // Construct the Button
@@ -313,7 +369,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //			tfSuggestedPW.setEditable(false);
 //			add(tfSuggestedPW);
 //			setVisible(true); // "super" Frame shows
-			add(new Label("Search Gmail?"));
+			
+			add(searchGmaillbl);
 			btnAllowGmail = new Button("Yes");
 			btnAllowGmail.addActionListener(this);
 			add(btnAllowGmail);
@@ -324,6 +381,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnNotAllowGmail) {
+			btnAllowGmail.setVisible(false);
+			btnNotAllowGmail.setVisible(false);
+			searchGmaillbl.setVisible(false);
 			btnGeneratePass = new Button("Generate passphrase");
 			add(btnGeneratePass);
 			btnGeneratePass.addActionListener(this);
@@ -373,6 +433,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnAllowGmail) {
+			btnAllowGmail.setVisible(false);
+			btnNotAllowGmail.setVisible(false);
+			searchGmaillbl.setVisible(false);
 			try {
 				GoogleGetGmail.openBrowser(this);
 			} catch (IOException e) {
@@ -385,7 +448,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			add(new Label("Enter verifier for Gmail")); // "super" Frame adds an anonymous Label
+			add(verGmaillbl); // "super" Frame adds an anonymous Label
 			tfverifierGmail = new TextField("", 20); // Construct the TextField
 			tfverifierGmail.setEditable(true);
 			add(tfverifierGmail); // "super" Frame adds TextField
@@ -399,6 +462,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 		
 		if(evt.getSource() == btnTVerifierGmail) {
+			btnTVerifierGmail.setVisible(false);
+			tfverifierGmail.setVisible(false);
+			verGmaillbl.setVisible(false);
+			
 			add(new Label("Extracting Gmail data..."));
 			setVisible(true);
 
@@ -472,6 +539,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnAllowLikedTweets) {
+			likedTlbl.setVisible(false);
+			localFileCompllbl.setVisible(false);
+			btnAllowLikedTweets.setVisible(false);
+			btnNotAllowLikedTweets.setVisible(false);
 			try {
 				TwitterExample.openBrowser(this);
 			} catch (IOException e) {
@@ -484,7 +555,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			add(new Label("Enter Twitter verifier")); // "super" Frame adds an anonymous Label
+			
+			add(tverifierlbl); // "super" Frame adds an anonymous Label
 			tfCount4 = new TextField("", 20); // Construct the TextField
 			tfCount4.setEditable(true);
 			add(tfCount4); // "super" Frame adds TextField
@@ -497,6 +569,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 
 		if (evt.getSource() == btnTVerifier) {
+			tverifierlbl.setVisible(false);
+			tfCount4.setVisible(false);
+			btnTVerifier.setVisible(false);
 			add(new Label("Extracting Twitter data..."));
 			setVisible(true);
 
@@ -571,9 +646,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				e.printStackTrace();
 			}
 
-			add(new Label("Liked Tweet search complete"));
+			add(likedTCompllbl);
 		
-			add(new Label("Search written tweets?"));
+			add(searchPtweetlbl);
 			btnAllowTweets = new Button("Yes");
 			btnAllowTweets.addActionListener(this);
 			add(btnAllowTweets);
@@ -713,46 +788,24 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		if (evt.getSource() == btnGenerateTokenDate) {
-			
+//			btnGenerateTokenDate.setVisible(false);
+//			btnGeneratePass.setVisible(true);
+			//if never set up
+			if(neverSetUp == true) {
+				setupPWrequirement();
+				neverSetUp = false;
+			}
+			createPWrequirementTokenDate();
 		}
 		
 		if (evt.getSource() == btnGeneratePass) {
-			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
-			tfpwMinLen = new TextField("", 1); // Construct the TextField
-			tfpwMinLen.setEditable(true);
-			add(tfpwMinLen);
-			
-			add(new Label("Enter Max pw length")); // "super" Frame adds an anonymous Label
-			tfpwMaxLen = new TextField("", 2); // Construct the TextField
-			tfpwMaxLen.setEditable(true);
-			add(tfpwMaxLen);
-			
-			add(new Label("Enter number of words to be used in passphrase")); // "super" Frame adds an anonymous Label
-			tfnumWords = new TextField("", 1); // Construct the TextField
-			tfnumWords.setEditable(true);
-			add(tfnumWords);
-			
-			add(new Label("Enter a delimeter to be used in passphrase")); // "super" Frame adds an anonymous Label
-			tfdelimeter = new TextField("", 1); // Construct the TextField
-			tfdelimeter.setEditable(true);
-			add(tfdelimeter);
-			
-			add(new Label("Enter minimum zxcvbn entropy password must have")); // "super" Frame adds an anonymous Label
-			tfminEntropy = new TextField("", 2); // Construct the TextField
-			tfminEntropy.setEditable(true);
-			add(tfminEntropy);
-			
-			hanCheckbox = new Checkbox("Include Hanguel in passwords?");
-			add(hanCheckbox); // "super" Frame adds an anonymous Label
-		
-			
-			btnGenerate = new Button("Generate"); // Construct the Button
-			add(btnGenerate); // "super" Frame adds Button
-			btnGenerate.addActionListener(this);
-			tfSuggestedPW = new TextField("", 40); // Construct the TextField
-			tfSuggestedPW.setEditable(false);
-			add(tfSuggestedPW);
-			setVisible(true); // "super" Frame shows
+//			btnGeneratePass.setVisible(false);
+//			btnGenerateTokenDate.setVisible(true);
+			if(neverSetUp == true) {
+				setupPWrequirement();
+				neverSetUp = false;
+			}
+			createPWrequirement();
 		}
 		
 		if (evt.getSource() == btnGenerate) {
@@ -1039,6 +1092,79 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			t.start();
 		}
 
+	}
+
+	private void setupPWrequirement() {
+		add(minPWlenlbl); // "super" Frame adds an anonymous Label
+		tfpwMinLen.setEditable(true);
+		add(tfpwMinLen);
+		
+		add(maxPWlenlbl); // "super" Frame adds an anonymous Label
+		tfpwMaxLen.setEditable(true);
+		add(tfpwMaxLen);
+		
+		add(numWordspasslbl); // "super" Frame adds an anonymous Label
+		 
+		tfnumWords.setEditable(true);
+		add(tfnumWords);
+		
+		add(delpasslbl); // "super" Frame adds an anonymous Label
+		tfdelimeter.setEditable(true);
+		add(tfdelimeter);
+		
+		add(minentropylbl); // "super" Frame adds an anonymous Label
+		tfminEntropy.setEditable(true);
+		add(tfminEntropy);
+		
+		add(hanCheckbox); // "super" Frame adds an anonymous Label
+
+	
+		add(btnGenerate); // "super" Frame adds Button
+		btnGenerate.addActionListener(this);
+		tfSuggestedPW.setEditable(false);
+		add(tfSuggestedPW);
+		setVisible(true); // "super" Frame shows
+		
+	}
+
+	private void createPWrequirementTokenDate() {
+		btnGenerateTokenDate.setVisible(false);
+		btnGeneratePass.setVisible(true);
+		minPWlenlbl.setVisible(true);
+		maxPWlenlbl.setVisible(true);
+		numWordspasslbl.setVisible(false);
+		delpasslbl.setVisible(false);
+		minentropylbl.setVisible(true);
+		tfpwMinLen.setVisible(true);
+		tfpwMaxLen.setVisible(true);
+		tfnumWords.setVisible(false);
+		tfdelimeter.setVisible(false);
+		tfminEntropy.setVisible(true);
+		hanCheckbox.setVisible(true);
+		btnGenerate.setVisible(true);
+		tfSuggestedPW.setVisible(true);
+		
+	}
+
+	private void createPWrequirement() {
+//		
+		btnGeneratePass.setVisible(false);
+		btnGenerateTokenDate.setVisible(true);
+		minPWlenlbl.setVisible(true);
+		maxPWlenlbl.setVisible(true);
+		numWordspasslbl.setVisible(true);
+		delpasslbl.setVisible(true);
+		minentropylbl.setVisible(true);
+		tfpwMinLen.setVisible(true);
+		tfpwMaxLen.setVisible(true);
+		tfnumWords.setVisible(true);
+		tfdelimeter.setVisible(true);
+		tfminEntropy.setVisible(true);
+		hanCheckbox.setVisible(true);
+		btnGenerate.setVisible(true);
+		tfSuggestedPW.setVisible(true);
+		
+		
 	}
 
 	
