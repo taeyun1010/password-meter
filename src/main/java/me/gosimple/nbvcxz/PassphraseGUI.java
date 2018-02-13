@@ -23,9 +23,7 @@ public class PassphraseGUI extends Frame implements ActionListener, WindowListen
 	private SubGUIProgram subgui;
 	private String userdata;
 	private Dictionary userdataDic;
-	// characters that should not appear in generated password
-	private char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
-			'\\', '|', '-', '_', '=', '+' };
+	
 	private Set<String> generatedPWs = new HashSet<String>();
 	private TextField tfpwMinLen = new TextField("", 1);
 	private TextField tfpwMaxLen = new TextField("", 2);
@@ -323,9 +321,18 @@ public class PassphraseGUI extends Frame implements ActionListener, WindowListen
 									suggestedPW = suggestedPW + word + delimeter;
 
 								}
+								
+								//get rid of last delimeter
+								suggestedPW = suggestedPW.substring(0, (suggestedPW.length()-1));
 
 							}
 
+							// if this pw was already generated before
+							// if (!generatedPWs.isEmpty()) {
+							if (generatedPWs.contains(suggestedPW)) {
+								continue;
+							}
+							
 							// if length requirement specified by the user is not met
 							// TODO: get rid of infinite loop caused by no password possible meeting the
 							// length requirement
@@ -362,6 +369,7 @@ public class PassphraseGUI extends Frame implements ActionListener, WindowListen
 						
 						if (!(meaningOfHanguel == "")) {
 							add(new Label(meaningOfHanguel));
+							setVisible(true);
 						}
 						if (entropylblset == true) {
 							entropylbl.setText("zxcvbn entropy = " + entropy);

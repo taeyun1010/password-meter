@@ -27,31 +27,25 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 	private SubGUIProgram subgui;
 	private String userdata;
 	private Dictionary userdataDic;
-	// characters that should not appear in generated password
-	private char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
-			'\\', '|', '-', '_', '=', '+' };
+
 	private Set<String> generatedPWs = new HashSet<String>();
 	private TextField tfpwMinLen = new TextField("", 1);
 	private TextField tfpwMaxLen = new TextField("", 2);
-	private TextField tfnumWords = new TextField("", 1);
-	private TextField tfdelimeter = new TextField("", 1);
 	private TextField tfminEntropy = new TextField("", 2);
 	private TextField tfSuggestedPW = new TextField("", 40);
 	private Checkbox hanCheckbox = new Checkbox("Include Hanguel in passwords?");
 	private Button btnGenerate = new Button("Generate");
-	private Label numLoopslbl, currentLooplbl, entropylbl, generatelbl, highlbl;
+	private Label entropylbl, generatelbl, highlbl;
 	private Label minPWlenlbl = new Label("Enter Min pw length");
 	
 	private Label nodatefoundlbl = new Label("no date pattern found, try different pattern, or collect more userdata");
 	private Label maxPWlenlbl = new Label("Enter Max pw length");
 	
-	private Label numWordspasslbl = new Label("Enter number of words to be used in passphrase");
-	
-	private Label delpasslbl = new Label("Enter a delimeter to be used in passphrase");
+	private Label nopwPossible = new Label("no password possible, try different setting");
 	
 	private Label minentropylbl = new Label("Enter minimum zxcvbn entropy password must have");
-	
-	private boolean numLoopslblset, currentLooplblset, entropylblset, generatelblset, highlblset, btnAbortset = false;
+	private Label numLoopslbl, currentLooplbl, currentwordlbl;
+	private boolean entropylblset, generatelblset, highlblset, btnAbortset, numLoopslblset, currentLooplblset, currentwordlblset = false;
 	
 	private Button btnAbort;
 	
@@ -91,7 +85,7 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 		// "super" Frame adds "this" object as a WindowEvent listener.
 
 		setTitle("Creating Token Date pattern password"); // "super" Frame sets title
-		setSize(350, 750); // "super" Frame sets initial size
+		setSize(400, 750); // "super" Frame sets initial size
 		setResizable(false);
 		setVisible(true); // "super" Frame shows
 
@@ -105,6 +99,7 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 		}
 		if (evt.getSource() == btnGenerate) {
 		
+			//nodatefoundlbl.setVisible(false);
 			
 			if(btnAbortset == true) {
 				//do nothing
@@ -128,6 +123,7 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 					int minLength = Integer.parseInt(tfpwMinLen.getText());
 					int maxLength = Integer.parseInt(tfpwMaxLen.getText());
 					int minEntropy = Integer.parseInt(tfminEntropy.getText());
+					boolean hanguelAllowed = hanCheckbox.getState();
 					
 					if (userdata.equals("")) {
 						while(true) {
@@ -177,23 +173,88 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 							highlblset = true;
 						}
 
-						//reverse order; most infrequent ones first
+						// reverse order; most infrequent ones first
 						Map<String, Integer> sortedDic = SubGUIProgram.sortByValue(userdataDic.getDictonary());
-						//List<String> userdataWords = new ArrayList<String>(sortedDic.value);
+						// List<String> userdataWords = new ArrayList<String>(sortedDic.value);
+
+						List<Match> matches = new ArrayList<>();
+						DateMatcher datematcher = new DateMatcher();
+
+						if (currentwordlblset == true) {
+							currentwordlbl.setText("checking if 0th word is date pattern...");
+						} 
+						else {
+							currentwordlbl = new Label("checking if 0th word is date pattern...");
+							add(currentwordlbl);
+							setVisible(true);
+							currentwordlblset = true;
+						}
 						
-						 List<Match> matches = new ArrayList<>();
-						 DateMatcher datematcher = new DateMatcher();
-						 
-						 for (int i=0; i < high; i++) {
-							 int rank = i+1;
-							 String word = SubGUIProgram.getKeyByValue(sortedDic, rank);
-							 matches.addAll(datematcher.match(nbvcxz.getConfiguration(), word));
-							 if (matches.size() != 0) {
-								 break;
-							 }
-						 }
-						 	 
-						 
+						// extract any date pattern
+						for (int i = 0; i < high; i++) {
+							int daterank = i + 1;
+							currentwordlbl.setText("checking if " + daterank + "th word is date pattern...");
+							String dateword = SubGUIProgram.getKeyByValue(sortedDic, daterank);
+							matches.addAll(datematcher.match(nbvcxz.getConfiguration(), dateword));
+						}
+						
+						// if no date pattern is found, return immediately
+						if (matches.size() == 0) {
+							System.out.println("no date pattern found");
+							tfSuggestedPW.setText("");
+
+							add(nodatefoundlbl);
+							setVisible(true);
+							return;
+
+						}
+						
+						boolean foundValidPW = false;
+						
+						//if actual numLoops returns greater than 214783647 (max int value possible)
+						// it is set to 214783647
+						int numLoops = (int) Math.pow(high, matches.size());
+						if (numLoopslblset == true) {
+							numLoopslbl.setText("Max Number of loops to be iterated : " + numLoops);
+						}
+
+						else {
+							numLoopslbl = new Label("Max Number of loops to be iterated : " + numLoops);
+							add(numLoopslbl);
+							setVisible(true);
+							numLoopslblset = true;
+						}
+						int currentLoop = 0;
+						if (currentLooplblset == true) {
+							currentLooplbl.setText("currently doing 0th loop");
+						} 
+						else {
+							currentLooplbl = new Label("currently doing 0th loop");
+							add(currentLooplbl);
+							setVisible(true);
+							currentLooplblset = true;
+						}
+						for (int j = 0; j < high; j++) {
+							int rank = j + 1;
+							String word = SubGUIProgram.getKeyByValue(sortedDic, rank);
+							//considers most frequent date first?
+							for (int i = 0; i < matches.size(); i++) {
+								currentLooplbl.setText("currently doing " + (currentLoop + 1) + "th loop");
+								currentLoop++;
+								String date = matches.get(i).getToken();
+								String candidatePW = word + date;
+								
+								//check if this candidate password meets requirement
+								if (meetsRequirement(nbvcxz, candidatePW, minLength, maxLength, minEntropy, hanguelAllowed)) {
+									foundValidPW = true;
+									suggestedPW = candidatePW;
+									break;
+								}
+							}
+							if (foundValidPW)
+								break;
+						}
+
 //						 for (Map.Entry<String, Integer> entry : sortedDic.entrySet())
 //						 {
 //							 matches.addAll(datematcher.match(nbvcxz.getConfiguration(), entry.getKey()));
@@ -205,18 +266,9 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 //							 System.out.println("\n");
 //						 }
 						 
-						 //if no date pattern is found, return immediately
-						 if(matches.size() == 0) {
-							 System.out.println("no date pattern found");
-							 tfSuggestedPW.setText("");
-							 
-							 add(nodatefoundlbl);
-							 setVisible(true);
-							 return;
-							 
-						 }
+						
 						 
-						 String date = matches.get(0).getToken();
+					
 //						//if actual numLoops returns greater than 214783647 (max int value possible)
 //						// it is set to 214783647
 //						int numLoops = (int) Math.pow(high, numWords);
@@ -380,9 +432,18 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 //						}
 
 						//
-
+						 
+						if (!foundValidPW) {
+							tfSuggestedPW.setText("");
+							add(nopwPossible);
+							setVisible(true);
+							return;
+						}
+						
+						nopwPossible.setVisible(false);
+							
 						System.out.println("generated password = " + suggestedPW);
-
+						entropy = nbvcxz.estimate(suggestedPW).getEntropy();
 						System.out.println("entropy = " + entropy);
 						//
 //						printToUserDatatxt(userdataDic);
@@ -422,6 +483,36 @@ public class TokenDateGUI extends Frame implements ActionListener, WindowListene
 		
 	}
 	
+protected boolean meetsRequirement(Nbvcxz nbvcxz, String candidatePW, int minLength, int maxLength, int minEntropy,
+			boolean hanguelAllowed) {
+		// TODO Auto-generated method stub
+		boolean result = true;
+		double entropy = nbvcxz.estimate(candidatePW).getEntropy();
+		
+		if (candidatePW.length() < minLength)
+			result = false;
+		if (candidatePW.length() > maxLength)
+			result = false;
+		if (entropy < minEntropy)
+			result = false;
+		//if hanguel should not be included but contains hanguel
+		if (!hanguelAllowed) {
+			for (int i = 0; i < candidatePW.length(); i++) {
+				char letter = candidatePW.charAt(i);
+				String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
+				// System.out.println( "\\u" + unicodeStr);
+				int unicode = Integer.parseInt(unicodeStr, 16);
+				
+				//if this letter is Hanguel
+				if (((unicode >= 0xAC00) && (unicode <= 0xD7A3))) {
+					result = false;
+				} 
+
+			}
+		}
+		return result;
+		
+	}
 //	private void printToUserDatatxt(Dictionary userdataDic2) {
 //		 // get path to documents folder
 //		String myDocuments = null;
