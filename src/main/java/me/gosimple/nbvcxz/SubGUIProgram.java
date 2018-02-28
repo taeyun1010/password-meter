@@ -817,6 +817,16 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 			patternOption = "tokendate";
 			
+			// only if userdataDic was not filled before
+			if (userdataDic == null) {
+				userdataDic = processUserData(userdata);
+				printToUserDatatxt(userdataDic);
+				System.out.println("userdata = " + userdata);
+				add(new Label("created file userdataForProject11111.txt"));
+				add(new Label("in Documents folder"));
+				setVisible(true);
+			}
+			
 			TokenDateGUI tdgui = new TokenDateGUI(this, userdata, userdataDic);
 			
 			//if never set up
@@ -831,6 +841,16 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 			patternOption = "passphrase";
 			
+			// only if userdataDic was not filled before
+			if (userdataDic == null) {
+				userdataDic = processUserData(userdata);
+				printToUserDatatxt(userdataDic);
+				System.out.println("userdata = " + userdata);
+				add(new Label("created file userdataForProject11111.txt"));
+				add(new Label("in Documents folder"));
+				setVisible(true);
+			}
+			
 			PassphraseGUI passgui =  new PassphraseGUI(this, userdata, userdataDic);
 			
 //			
@@ -843,6 +863,16 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		if (evt.getSource() == btnFixPass) {
 
 			//patternOption = "fixpass";
+			
+			// only if userdataDic was not filled before
+			if (userdataDic == null) {
+				userdataDic = processUserData(userdata);
+				printToUserDatatxt(userdataDic);
+				System.out.println("userdata = " + userdata);
+				add(new Label("created file userdataForProject11111.txt"));
+				add(new Label("in Documents folder"));
+				setVisible(true);
+			}
 			
 			FixPasswordGUI fpgui =  new FixPasswordGUI(this, userdata, userdataDic);
 
