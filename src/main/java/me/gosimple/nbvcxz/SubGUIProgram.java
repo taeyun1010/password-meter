@@ -94,6 +94,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			btnAllowGmail, btnNotAllowGmail, btnAllowLikedTweets, btnNotAllowLikedTweets, btnNotAllowTweets,
 			btnAllowTweets, btnTVerifierGmail, btnConvert, btnAbort, btnGeneratePass; // Declare a Button
 
+	private Button btnFixPass = new Button("Password Fixer");
 	
 	private volatile Thread t, gmailThread, TDthread;
 	
@@ -408,6 +409,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			add(btnGenerateTokenDate);
 			btnGenerateTokenDate.addActionListener(this);
 			
+			add(btnFixPass);
+			btnFixPass.addActionListener(this);
+			
 			setVisible(true);
 //			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
 //			tfpwMinLen = new TextField("", 1); // Construct the TextField
@@ -512,6 +516,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			btnGenerateTokenDate = new Button("Generate token + date");
 			add(btnGenerateTokenDate);
 			btnGenerateTokenDate.addActionListener(this);
+			
+			add(btnFixPass);
+			btnFixPass.addActionListener(this);
 			
 			setVisible(true);
 			
@@ -832,6 +839,13 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //				neverSetUp = false;
 //			}
 //			createPWrequirement();
+		}
+		if (evt.getSource() == btnFixPass) {
+
+			//patternOption = "fixpass";
+			
+			FixPasswordGUI fpgui =  new FixPasswordGUI(this, userdata, userdataDic);
+
 		}
 		
 //		if (evt.getSource() == btnGenerate) {
@@ -1510,6 +1524,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //		
 //	}
 
+	
 	
 	public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
 	    for (Entry<T, E> entry : map.entrySet()) {
