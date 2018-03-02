@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -138,6 +139,93 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 	private static char[] bannedChars = { ',', '.', '】', '【', '', '[', ']', '{', '}', ';', ':', '"', '<', '>', '/', '?', '\'',
 			'\\', '|', '-', '_', '=', '+'};
 
+	
+	//these words will not be included in generated password
+	private static String[] bannedStr = {"the","a", "an", "and", "or","aboard",
+				"about",
+				"above",
+				"across",
+				"after",
+				"against",
+				"along",
+				"amid",
+				"among",
+				"anti",
+				"around",
+				"as",
+				"at",
+				"before",
+				"behind",
+				"below",
+				"beneath",
+				"beside",
+				"besides",
+				"between",
+				"beyond",
+				"but",
+				"by",
+				"concerning",
+				"considering",
+				"despite",
+				"down",
+				"during",
+				"except",
+				"excepting",
+				"excluding",
+				"following",
+				"for",
+				"from",
+				"in",
+				"inside",
+				"into",
+				"like",
+				"minus",
+				"near",
+				"of",
+				"off",
+				"on",
+				"onto",
+				"opposite",
+				"outside",
+				"over",
+				"past",
+				"per",
+				"plus",
+				"regarding",
+				"round",
+				"save",
+				"since",
+				"than",
+				"through",
+				"to",
+				"toward",
+				"towards",
+				"under",
+				"underneath",
+				"unlike",
+				"until",
+				"up",
+				"upon",
+				"versus",
+				"via",
+				"with",
+				"within",
+				"without",
+				"ago",
+				"apart",
+				"aside",
+				"aslant",
+				"away",
+				"hence",
+				"notwithstanding",
+				"on",
+				"short",
+				"through",
+				"withal",
+				"who",	"whom", "whose",
+				"which",
+				"that", "not"};
+	
 	private Set<String> generatedPWs = new HashSet<String>();
 	
 	//number of words to be used in passphrase
@@ -819,6 +907,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			
 			// only if userdataDic was not filled before
 			if (userdataDic == null) {
+				
 				userdataDic = processUserData(userdata);
 				printToUserDatatxt(userdataDic);
 				System.out.println("userdata = " + userdata);
@@ -843,6 +932,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			
 			// only if userdataDic was not filled before
 			if (userdataDic == null) {
+				
 				userdataDic = processUserData(userdata);
 				printToUserDatatxt(userdataDic);
 				System.out.println("userdata = " + userdata);
@@ -866,6 +956,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			
 			// only if userdataDic was not filled before
 			if (userdataDic == null) {
+				
 				userdataDic = processUserData(userdata);
 				printToUserDatatxt(userdataDic);
 				System.out.println("userdata = " + userdata);
@@ -1170,6 +1261,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 //		}
 
 	}
+
 
 //	private void generateTDpw() {
 //		TDthread = new Thread(new Runnable() {
@@ -1919,9 +2011,17 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				}
 			}
 			
+		
 			if (containsBanned == true) {
 				continue;
 			}
+			
+			//do not add to map if this str.toLowerCase() is one of bannedStr
+			if ((Arrays.asList(bannedStr).contains(str.toLowerCase()))) {
+				continue;
+			}
+			
+			
 			
 			// if this word is already added to map before
 			if (map.containsKey(str)) {
@@ -1935,6 +2035,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 		// add map to sorteduserdata.txt
 		Map<String, Integer> sortedmap = sortByValue(map);
+		
 		// // loop a Map
 		// for (Map.Entry<String, Integer> entry : sortedmap.entrySet()) {
 		// writer.println(entry.getKey());
