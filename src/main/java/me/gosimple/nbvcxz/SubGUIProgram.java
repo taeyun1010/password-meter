@@ -2003,6 +2003,36 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		for (String str : splited) {
 			boolean containsBanned = false;
 			
+			boolean unsupportedChar = false;
+			//only add to map if all characters are within this unicode range (English, Korean, Symbol)
+			for (int i = 0; i < str.length(); i++) {
+				char letter = str.charAt(i);
+				String unicodeStr = Integer.toHexString(letter | 0x10000).substring(1);
+				// System.out.println( "\\u" + unicodeStr);
+				int unicode = Integer.parseInt(unicodeStr, 16);
+				
+				
+				if (unicode < 0x0021) {
+					unsupportedChar = true;
+					break;
+				}
+				
+				else if ((unicode > 0x007a) && (unicode < 0xAC00)) {
+					unsupportedChar = true;
+					break;
+				}
+				
+				else if (unicode > 0xD7A3) {
+					unsupportedChar = true;
+					break;
+				}
+
+			}
+			
+			if(unsupportedChar)
+				continue;
+			
+			
 			//do not add to map if this str contains forbidden characters
 			for (char fbiddenChar : bannedChars) {
 				
