@@ -8,6 +8,7 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,24 +43,33 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	
 	//TODO: check if all pattern arrays are sorted from the most frequent to least frequent
 	//list of words that are found to be date pattern
-	private ArrayList<String> datePatterns = new ArrayList<String>();
-	private ArrayList<String> dictionaryPatterns = new ArrayList<String>();
-	private ArrayList<String> repeatPatterns = new ArrayList<String>();
-	private ArrayList<String> separatorPatterns = new ArrayList<String>();
-	private ArrayList<String> sequencePatterns = new ArrayList<String>();
-	private ArrayList<String> spacialPatterns = new ArrayList<String>();
-	private ArrayList<String> yearPatterns = new ArrayList<String>();
-	//private ArrayList<String> bruteforcePatterns = new ArrayList<String>();
+//	private ArrayList<String> datePatterns = new ArrayList<String>();
+//	private ArrayList<String> dictionaryPatterns = new ArrayList<String>();
+//	private ArrayList<String> repeatPatterns = new ArrayList<String>();
+//	private ArrayList<String> separatorPatterns = new ArrayList<String>();
+//	private ArrayList<String> sequencePatterns = new ArrayList<String>();
+//	private ArrayList<String> spacialPatterns = new ArrayList<String>();
+//	private ArrayList<String> yearPatterns = new ArrayList<String>();
+//	//private ArrayList<String> bruteforcePatterns = new ArrayList<String>();
 	
 	//counts how many times each word occurred, sorted so most frequent ones appear first
-	private Map<String, Integer> dateSortedMap = new HashMap<String, Integer>();
-	private Map<String, Integer> dictionarySortedMap = new HashMap<String, Integer>();
-	private Map<String, Integer> repeatSortedMap = new HashMap<String, Integer>();
-	private Map<String, Integer> separatorSortedMap = new HashMap<String, Integer>();
-	private Map<String, Integer> sequenceSortedMap = new HashMap<String, Integer>();
-	private Map<String, Integer> spacialSortedMap = new HashMap<String, Integer>();
-	private Map<String, Integer> yearSortedMap = new HashMap<String, Integer>();
-	//private Map<String, Integer> bruteforceSortedMap = new HashMap<String, Integer>();
+//	private Map<String, Integer> dateSortedMap = new LinkedHashMap<String, Integer>();
+//	private Map<String, Integer> dictionarySortedMap = new LinkedHashMap<String, Integer>();
+//	private Map<String, Integer> repeatSortedMap = new LinkedHashMap<String, Integer>();
+//	private Map<String, Integer> separatorSortedMap = new LinkedHashMap<String, Integer>();
+//	private Map<String, Integer> sequenceSortedMap = new LinkedHashMap<String, Integer>();
+//	private Map<String, Integer> spacialSortedMap = new LinkedHashMap<String, Integer>();
+//	private Map<String, Integer> yearSortedMap = new LinkedHashMap<String, Integer>();
+//	//private Map<String, Integer> bruteforceSortedMap = new HashMap<String, Integer>();
+	
+	//most frequent ones first
+	private List<String> dateSortedWords = new ArrayList<String>();
+	private List<String> dictionarySortedWords = new ArrayList<String>();
+	private List<String> repeatSortedWords = new ArrayList<String>();
+	private List<String> separatorSortedWords = new ArrayList<String>();
+	private List<String> sequenceSortedWords = new ArrayList<String>();
+	private List<String> spacialSortedWords = new ArrayList<String>();
+	private List<String> yearSortedWords = new ArrayList<String>();
 	
 	
 	public FixPasswordGUI(SubGUIProgram subgui, String userdata, Dictionary userdataDic) {
@@ -68,6 +78,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		this.userdataDic = userdataDic;
 		// reverse order; most infrequent ones first
 		sortedDic = SubGUIProgram.sortByValue(userdataDic.getDictonary());
+		
+
+		
 		setLayout(new FlowLayout());
 
 		userInputPW.setEditable(true);
@@ -174,7 +187,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			
 		}
 		
-		List<Match> matches = new ArrayList<>();
+		//List<Match> matches = new ArrayList<>();
 		
 		final int high = userdataDic.getDictonary().size();
 		Nbvcxz nbvcxz = new Nbvcxz();
@@ -184,6 +197,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		Label wordCounter = new Label("finding 0th word's matches...");
 		add(wordCounter);
 		setVisible(true);
+		List<String> words = new ArrayList<String>();
 		for (int i = 0; i < high; i++) {
 			
 			if (i == 0) {
@@ -198,60 +212,181 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			
 			//only count the matches that are not too long, to save time
 			if (word.length() <= 15)
-				matches.addAll(matcher.match(nbvcxz.getConfiguration(), word));
+				//matches.addAll(matcher.match(nbvcxz.getConfiguration(), word));
+				
+				//add only if given pattern is found in this word
+				if (matcher.match(nbvcxz.getConfiguration(), word).size() > 0)
+					words.add(word);
 		}
 		
+		
+		//old version which adds all matches, instead of whole words
 		// if no date pattern is found, return immediately
-		if (matches.size() == 0) {
-
+//		if (matches.size() == 0) {
+//
+//			return;
+//
+//		}
+//		add(new Label("found " + matches.size() + " matches"));
+//		setVisible(true);
+//		Label counter;
+//		counter = new Label("adding 0th match...");
+//
+//		add(counter);
+//		setVisible(true);
+//		for (int i = 0; i < matches.size(); i++) {
+//			if (i == 0) {
+//				
+//			}
+//			else {
+//				counter.setText("adding " + i + "th match...");
+//				setVisible(true);
+//			}
+//			String word = matches.get(i).getToken();
+//			switch(pattern) {
+//			case "DateMatch":
+//				// if this word is already added to map before
+//				if (dateSortedMap.containsKey(word)) {
+//					dateSortedMap.put(word, dateSortedMap.get(word) + 1);
+//				}
+//				// if this word is encountered for the first time
+//				else {
+//					dateSortedMap.put(word, 1);
+//				}
+//				break;
+//			case "DictionaryMatch":
+//				// if this word is already added to map before
+//				if (dictionarySortedMap.containsKey(word)) {
+//					dictionarySortedMap.put(word, dictionarySortedMap.get(word) + 1);
+//				}
+//				// if this word is encountered for the first time
+//				else {
+//					dictionarySortedMap.put(word, 1);
+//				}
+//				break;
+//			case "RepeatMatch":
+//				// if this word is already added to map before
+//				if (repeatSortedMap.containsKey(word)) {
+//					repeatSortedMap.put(word, repeatSortedMap.get(word) + 1);
+//				}
+//				// if this word is encountered for the first time
+//				else {
+//					repeatSortedMap.put(word, 1);
+//				}
+//				break;
+//			case "SeparatorMatch":
+//				// if this word is already added to map before
+//				if (separatorSortedMap.containsKey(word)) {
+//					separatorSortedMap.put(word, separatorSortedMap.get(word) + 1);
+//				}
+//				// if this word is encountered for the first time
+//				else {
+//					separatorSortedMap.put(word, 1);
+//				}
+//				break;
+//			case "SequenceMatch":
+//				// if this word is already added to map before
+//				if (sequenceSortedMap.containsKey(word)) {
+//					sequenceSortedMap.put(word, sequenceSortedMap.get(word) + 1);
+//				}
+//				// if this word is encountered for the first time
+//				else {
+//					sequenceSortedMap.put(word, 1);
+//				}
+//				break;
+//			case "SpacialMatch":
+//				// if this word is already added to map before
+//				if (spacialSortedMap.containsKey(word)) {
+//					spacialSortedMap.put(word, spacialSortedMap.get(word) + 1);
+//				}
+//				// if this word is encountered for the first time
+//				else {
+//					spacialSortedMap.put(word, 1);
+//				}
+//				break;
+//			case "YearMatch":
+//				// if this word is already added to map before
+//				if (yearSortedMap.containsKey(word)) {
+//					yearSortedMap.put(word, yearSortedMap.get(word) + 1);
+//				}
+//				// if this word is encountered for the first time
+//				else {
+//					yearSortedMap.put(word, 1);
+//				}
+//				break;
+////			case "BruteForceMatch":
+////				bruteforcePatterns.add(word);
+////				break;
+//				
+//			}
+		
+		if (words.isEmpty()) {
 			return;
-
 		}
-		add(new Label("found " + matches.size() + " matches"));
+		add(new Label("found " + words.size() + " words"));
 		setVisible(true);
 		Label counter;
-		counter = new Label("adding 0th match...");
+		counter = new Label("adding 0th word...");
 
 		add(counter);
 		setVisible(true);
-		for (int i = 0; i < matches.size(); i++) {
-			if (i == 0) {
-				
-			}
-			else {
-				counter.setText("adding " + i + "th match...");
-				setVisible(true);
-			}
-			String word = matches.get(i).getToken();
-			switch(pattern) {
-			case "DateMatch":
-				datePatterns.add(word);
-				break;
-			case "DictionaryMatch":
-				dictionaryPatterns.add(word);
-				break;
-			case "RepeatMatch":
-				repeatPatterns.add(word);
-				break;
-			case "SeparatorMatch":
-				separatorPatterns.add(word);
-				break;
-			case "SequenceMatch":
-				sequencePatterns.add(word);
-				break;
-			case "SpacialMatch":
-				spacialPatterns.add(word);
-				break;
-			case "YearMatch":
-				yearPatterns.add(word);
-				break;
-//			case "BruteForceMatch":
-//				bruteforcePatterns.add(word);
-//				break;
-				
-			}
-			
+
+		switch (pattern) {
+		case "DateMatch":
+			dateSortedWords = words;
+			break;
+		case "DictionaryMatch":
+			dictionarySortedWords = words;
+			break;
+		case "RepeatMatch":
+			repeatSortedWords = words;
+			break;
+		case "SeparatorMatch":
+			separatorSortedWords = words;
+			break;
+		case "SequenceMatch":
+			sequenceSortedWords = words;
+			break;
+		case "SpacialMatch":
+			spacialSortedWords = words;
+			break;
+		case "YearMatch":
+			yearSortedWords = words;
+			break;
+		// case "BruteForceMatch":
+		// bruteforcePatterns.add(word);
+		// break;
+
 		}
+
+//		//done with addition, sort
+//		switch(pattern) {
+//		case "DateMatch":
+//			dateSortedMap = SubGUIProgram.sortByValue(dateSortedMap);
+//			break;
+//		case "DictionaryMatch":
+//			dictionarySortedMap = SubGUIProgram.sortByValue(dictionarySortedMap);
+//			break;
+//		case "RepeatMatch":
+//			repeatSortedMap = SubGUIProgram.sortByValue(repeatSortedMap);
+//			break;
+//		case "SeparatorMatch":
+//			separatorSortedMap = SubGUIProgram.sortByValue(separatorSortedMap);
+//			break;
+//		case "SequenceMatch":
+//			sequenceSortedMap = SubGUIProgram.sortByValue(sequenceSortedMap);
+//			break;
+//		case "SpacialMatch":
+//			spacialSortedMap = SubGUIProgram.sortByValue(spacialSortedMap);
+//			break;
+//		case "YearMatch":
+//			yearSortedMap = SubGUIProgram.sortByValue(yearSortedMap);
+//			break;
+////		case "BruteForceMatch":
+////			bruteforcePatterns.add(word);
+////			break;
+//			
+//		}
 	}
 	
 	
@@ -264,32 +399,38 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		for(int i=0; i<patterns.size(); i++) {
 			switch(patterns.get(i)) {
 			case "DateMatch":
-				if (datePatterns.size() == 0)
-					findWordsWithPattern("DateMatch");
-				
+//				if (datePatterns.size() == 0)
+				if (dateSortedWords.isEmpty())
+					findWordsWithPattern("DateMatch");	
 				break;
 			case "DictionaryMatch":
-				if (dictionaryPatterns.size() == 0)
+				//if (dictionaryPatterns.size() == 0)
+				if (dictionarySortedWords.isEmpty())
 					findWordsWithPattern("DictionaryMatch");
 				break;
 			case "RepeatMatch":
-				if (repeatPatterns.size() == 0)
+				//if (repeatPatterns.size() == 0)
+				if (repeatSortedWords.isEmpty())	
 					findWordsWithPattern("RepeatMatch");
 				break;
 			case "SeparatorMatch":
-				if (separatorPatterns.size() == 0)
+				///if (separatorPatterns.size() == 0)
+				if (separatorSortedWords.isEmpty())
 					findWordsWithPattern("SeparatorMatch");
 				break;
 			case "SequenceMatch":
-				if (sequencePatterns.size() == 0)
+				//if (sequencePatterns.size() == 0)
+				if (sequenceSortedWords.isEmpty())
 					findWordsWithPattern("SequenceMatch");
 				break;
 			case "SpacialMatch":
-				if (spacialPatterns.size() == 0)
+				//if (spacialPatterns.size() == 0)
+				if (spacialSortedWords.isEmpty())
 					findWordsWithPattern("SpacialMatch");
 				break;
 			case "YearMatch":
-				if (yearPatterns.size() == 0)
+				//if (yearPatterns.size() == 0)
+				if (yearSortedWords.isEmpty())
 					findWordsWithPattern("YearMatch");
 				break;
 //			case "BruteForceMatch":
@@ -326,9 +467,11 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //				break;
 				
 				//fill with the most frequent ones, for now
-				if (datePatterns.size() != 0)
-					createdpw = createdpw + datePatterns.get(0);
-				else
+				if (!dateSortedWords.isEmpty()){
+					String word = dateSortedWords.get(0);
+					createdpw = createdpw + word;
+				}
+				 else
 					createdpw = createdpw + tokens.get(i);
 				break;
 			case "DictionaryMatch":
@@ -348,8 +491,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //					createdpw = createdpw + tokens.get(i);
 //				
 //				break;
-				if (dictionaryPatterns.size() != 0)
-					createdpw = createdpw + dictionaryPatterns.get(0);
+				if (!dictionarySortedWords.isEmpty()){
+					String word = dictionarySortedWords.get(0);
+					createdpw = createdpw + word;
+				}
 				else
 					createdpw = createdpw + tokens.get(i);
 				break;
@@ -370,8 +515,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //					createdpw = createdpw + tokens.get(i);
 //				
 //				break;
-				if (repeatPatterns.size() != 0)
-					createdpw = createdpw + repeatPatterns.get(0);
+				if (!repeatSortedWords.isEmpty()){
+					String word = repeatSortedWords.get(0);
+					createdpw = createdpw + word;
+				}
 				else
 					createdpw = createdpw + tokens.get(i);
 				break;
@@ -392,8 +539,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //					createdpw = createdpw + tokens.get(i);
 //				
 //				break;
-				if (separatorPatterns.size() != 0)
-					createdpw = createdpw + separatorPatterns.get(0);
+				if (!separatorSortedWords.isEmpty()){
+					String word = separatorSortedWords.get(0);
+					createdpw = createdpw + word;
+				}
 				else
 					createdpw = createdpw + tokens.get(i);
 				break;
@@ -414,8 +563,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //					createdpw = createdpw + tokens.get(i);
 //				
 //				break;
-				if (sequencePatterns.size() != 0)
-					createdpw = createdpw + sequencePatterns.get(0);
+				if (!sequenceSortedWords.isEmpty()){
+					String word = sequenceSortedWords.get(0);
+					createdpw = createdpw + word;
+				}
 				else
 					createdpw = createdpw + tokens.get(i);
 				break;
@@ -436,8 +587,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //					createdpw = createdpw + tokens.get(i);
 //				
 //				break;
-				if (spacialPatterns.size() != 0)
-					createdpw = createdpw + spacialPatterns.get(0);
+				if (!spacialSortedWords.isEmpty()){
+					String word = spacialSortedWords.get(0);
+					createdpw = createdpw + word;
+				}
 				else
 					createdpw = createdpw + tokens.get(i);
 				break;
@@ -458,8 +611,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //					createdpw = createdpw + tokens.get(i);
 //				
 //				break;
-				if (yearPatterns.size() != 0)
-					createdpw = createdpw + yearPatterns.get(0);
+				if (!yearSortedWords.isEmpty()){
+					String word = yearSortedWords.get(0);
+					createdpw = createdpw + word;
+				}
 				else
 					createdpw = createdpw + tokens.get(i);
 				break;
@@ -488,7 +643,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 				
 				
 				//if bruteforcematch just add what user input
-					createdpw = createdpw + tokens.get(i);
+				createdpw = createdpw + tokens.get(i);
 				break;
 				
 				

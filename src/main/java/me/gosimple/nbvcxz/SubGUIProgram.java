@@ -141,7 +141,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	
 	//these words will not be included in generated password
-	private static String[] bannedStr = {"the","a", "an", "and", "or","aboard",
+	private static String[] bannedStr = {"the","a", "an", "and", "or","aboard", "is", "are", "will", "do", "does", "did","would","can", "could",
+			//pronouns are also excluded
+			"you","he", "she", "it", "him", "her", "they",	"them",	"I", "me", "we", "us",
+			
 				"about",
 				"above",
 				"across",
@@ -910,7 +913,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				
 				userdataDic = processUserData(userdata);
 				printToUserDatatxt(userdataDic);
-				System.out.println("userdata = " + userdata);
+				//System.out.println("userdata = " + userdata);
 				add(new Label("created file userdataForProject11111.txt"));
 				add(new Label("in Documents folder"));
 				setVisible(true);
@@ -935,7 +938,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				
 				userdataDic = processUserData(userdata);
 				printToUserDatatxt(userdataDic);
-				System.out.println("userdata = " + userdata);
+				//System.out.println("userdata = " + userdata);
 				add(new Label("created file userdataForProject11111.txt"));
 				add(new Label("in Documents folder"));
 				setVisible(true);
@@ -959,7 +962,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 				
 				userdataDic = processUserData(userdata);
 				printToUserDatatxt(userdataDic);
-				System.out.println("userdata = " + userdata);
+				//System.out.println("userdata = " + userdata);
 				add(new Label("created file userdataForProject11111.txt"));
 				add(new Label("in Documents folder"));
 				setVisible(true);
@@ -2070,6 +2073,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		// for (Map.Entry<String, Integer> entry : sortedmap.entrySet()) {
 		// writer.println(entry.getKey());
 		// }
+		
+		//Map<String, Integer> temp = DictionaryUtil.loadRankedDictionaryGivenMap(sortedmap);
 
 		Dictionary dic = new Dictionary("sorteduserdata", DictionaryUtil.loadRankedDictionaryGivenMap(sortedmap),
 				false);
@@ -2078,7 +2083,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	}
 
-	// sorts map, most frequent ones first
+	// sorts map, most infrequent ones first
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
 		LinkedList<Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
 		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
@@ -2203,6 +2208,9 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		textfiles.forEach(file -> {
 
 			textfileCounter++;
+			//files that are bigger than this size are not counted
+			if (file.length() > 1000000)
+				return;
 			textfilelbl.setText("processing " + textfileCounter + "th text file...");
 			try {
 				userdata = readtxtfile(file, userdata);
@@ -2220,6 +2228,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		setVisible(true);
 		pdffiles.forEach(file -> {
 			pdffileCounter++;
+			
+			//files that are bigger than this size are not counted
+			if (file.length() > 1000000)
+				return;
 			pdffilelbl.setText("processing " + pdffileCounter + "th pdf file...");
 			try {
 				userdata = extractpdf(file, userdata);
