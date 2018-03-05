@@ -149,7 +149,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
         }
 		
 		
-		fixedPW = createPWgivenPattern(patterns, tokens);
+		fixedPW = createPWgivenPattern(patterns, tokens, entropyBefore);
 		
 		return fixedPW;
 	}
@@ -392,7 +392,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	
 	//TODO: if a word with required pattern is not found in user data dic, use word specified by the user
 	//REQUIRES:  patterns and tokens must have same number of elements
-	private String createPWgivenPattern(ArrayList<String> patterns, ArrayList<String> tokens) {
+	private String createPWgivenPattern(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
 		String createdpw = "";
 		
 		//find words with given pattern if they were not found before
@@ -440,214 +440,220 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 				
 			}
 		}
-		
-		//fill createdpw with given patterns, fill with the most frequent ones, for now
-		for(int i=0; i<patterns.size(); i++) {
-			//tells if no word satisfying the requirement is found
-			//boolean notFound = false;
-			//int patternsize;
-			switch (patterns.get(i)) {
+
+		while (true) {
 			
-			case "DateMatch":
-//				patternsize = datePatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = datePatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				
-				//fill with the most frequent ones, for now
-				if (!dateSortedWords.isEmpty()){
-					String word = dateSortedWords.get(0);
-					createdpw = createdpw + word;
-				}
-				 else
+			//change createdpw back to empty string
+			createdpw = "";
+			
+			// fill createdpw with given patterns, fill with the most frequent ones, for now
+			for (int i = 0; i < patterns.size(); i++) {
+				// tells if no word satisfying the requirement is found
+				// boolean notFound = false;
+				// int patternsize;
+				switch (patterns.get(i)) {
+
+				case "DateMatch":
+					// patternsize = datePatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = datePatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+
+					// fill with the most frequent ones, for now
+					if (!dateSortedWords.isEmpty()) {
+						String word = dateSortedWords.get(0);
+						createdpw = createdpw + word;
+					} else
+						createdpw = createdpw + tokens.get(i);
+					break;
+				case "DictionaryMatch":
+					// patternsize = dictionaryPatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = dictionaryPatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+					if (!dictionarySortedWords.isEmpty()) {
+						String word = dictionarySortedWords.get(0);
+						createdpw = createdpw + word;
+					} else
+						createdpw = createdpw + tokens.get(i);
+					break;
+				case "RepeatMatch":
+					// patternsize = repeatPatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = repeatPatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+					if (!repeatSortedWords.isEmpty()) {
+						String word = repeatSortedWords.get(0);
+						createdpw = createdpw + word;
+					} else
+						createdpw = createdpw + tokens.get(i);
+					break;
+				case "SeparatorMatch":
+					// patternsize = separatorPatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = separatorPatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+					if (!separatorSortedWords.isEmpty()) {
+						String word = separatorSortedWords.get(0);
+						createdpw = createdpw + word;
+					} else
+						createdpw = createdpw + tokens.get(i);
+					break;
+				case "SequenceMatch":
+					// patternsize = sequencePatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = sequencePatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+					if (!sequenceSortedWords.isEmpty()) {
+						String word = sequenceSortedWords.get(0);
+						createdpw = createdpw + word;
+					} else
+						createdpw = createdpw + tokens.get(i);
+					break;
+				case "SpacialMatch":
+					// patternsize = spacialPatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = spacialPatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+					if (!spacialSortedWords.isEmpty()) {
+						String word = spacialSortedWords.get(0);
+						createdpw = createdpw + word;
+					} else
+						createdpw = createdpw + tokens.get(i);
+					break;
+				case "YearMatch":
+					// patternsize = yearPatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = yearPatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+					if (!yearSortedWords.isEmpty()) {
+						String word = yearSortedWords.get(0);
+						createdpw = createdpw + word;
+					} else
+						createdpw = createdpw + tokens.get(i);
+					break;
+				case "BruteForceMatch":
+					// patternsize = yearPatterns.size();
+					// for (int j = 0; j < patternsize; j++) {
+					// String thisword = yearPatterns.get(j);
+					// // add only if the word is not one of bannedStr
+					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
+					// createdpw = createdpw + thisword;
+					// break;
+					// }
+					// if (j == (patternsize -1))
+					// notFound = true;
+					// }
+					//
+					// if (notFound)
+					// createdpw = createdpw + tokens.get(i);
+					//
+					// break;
+
+					// if (bruteforcePatterns.size() != 0)
+					// createdpw = createdpw + bruteforcePatterns.get(0);
+					// else
+
+					// if bruteforcematch just add what user input
 					createdpw = createdpw + tokens.get(i);
-				break;
-			case "DictionaryMatch":
-//				patternsize = dictionaryPatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = dictionaryPatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				if (!dictionarySortedWords.isEmpty()){
-					String word = dictionarySortedWords.get(0);
-					createdpw = createdpw + word;
+					break;
+
 				}
-				else
-					createdpw = createdpw + tokens.get(i);
-				break;
-			case "RepeatMatch":
-//				patternsize = repeatPatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = repeatPatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				if (!repeatSortedWords.isEmpty()){
-					String word = repeatSortedWords.get(0);
-					createdpw = createdpw + word;
-				}
-				else
-					createdpw = createdpw + tokens.get(i);
-				break;
-			case "SeparatorMatch":
-//				patternsize = separatorPatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = separatorPatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				if (!separatorSortedWords.isEmpty()){
-					String word = separatorSortedWords.get(0);
-					createdpw = createdpw + word;
-				}
-				else
-					createdpw = createdpw + tokens.get(i);
-				break;
-			case "SequenceMatch":
-//				patternsize = sequencePatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = sequencePatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				if (!sequenceSortedWords.isEmpty()){
-					String word = sequenceSortedWords.get(0);
-					createdpw = createdpw + word;
-				}
-				else
-					createdpw = createdpw + tokens.get(i);
-				break;
-			case "SpacialMatch":
-//				patternsize = spacialPatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = spacialPatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				if (!spacialSortedWords.isEmpty()){
-					String word = spacialSortedWords.get(0);
-					createdpw = createdpw + word;
-				}
-				else
-					createdpw = createdpw + tokens.get(i);
-				break;
-			case "YearMatch":
-//				patternsize = yearPatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = yearPatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				if (!yearSortedWords.isEmpty()){
-					String word = yearSortedWords.get(0);
-					createdpw = createdpw + word;
-				}
-				else
-					createdpw = createdpw + tokens.get(i);
-				break;
-			case "BruteForceMatch":
-//				patternsize = yearPatterns.size();
-//				for (int j = 0; j < patternsize; j++) {
-//					String thisword = yearPatterns.get(j);
-//					// add only if the word is not one of bannedStr
-//					if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-//						createdpw = createdpw + thisword;
-//						break;
-//					}
-//					if (j == (patternsize -1))
-//						notFound = true;
-//				}
-//
-//				if (notFound)
-//					createdpw = createdpw + tokens.get(i);
-//				
-//				break;
-				
-				
-//				if (bruteforcePatterns.size() != 0)
-//					createdpw = createdpw + bruteforcePatterns.get(0);
-//				else
-				
-				
-				//if bruteforcematch just add what user input
-				createdpw = createdpw + tokens.get(i);
-				break;
-				
-				
 			}
+			
+			Result result = subgui.nbvcxz.estimate(createdpw);
+			Double entropyAfter = result.getEntropy();
+			
+			//return createdpw only if its entropy is higher
+			if (entropyAfter > entropyBefore) {
+				System.out.println("entropyAfter = " + entropyAfter);
+				break;
+			}
+			
 		}
 		
 		return createdpw;
