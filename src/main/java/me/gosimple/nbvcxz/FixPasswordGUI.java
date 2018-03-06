@@ -39,13 +39,13 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private Label fixedpwlbl1 = new Label("Fixed PW 1");
 	private Label fixedpwlbl2 = new Label("Fixed PW 2");
 	private Label fixedpwlbl3 = new Label("Fixed PW 3");
-	private Label entropylbl1 = new Label("PW 1 entropy:                  						 ");
-	private Label entropylbl2 = new Label("PW 2 entropy:                  						 ");
-	private Label entropylbl3 = new Label("PW 3 entropy:                 					     ");
+	private Label entropylbl1 = new Label("PW 1 entropy:");
+	private Label entropylbl2 = new Label("PW 2 entropy:");
+	private Label entropylbl3 = new Label("PW 3 entropy:");
 	private Label generatelbl = new Label("Hit submit button again to generate different ones");
 	private Label entropyBeforelbl;
 	private Map<String, Integer> sortedDic;
-	private boolean numLoopslblset, currentLooplblset, generatelblset = false;
+	private boolean numLoopslblset, currentLooplblset, generatelblset, entropybeforelblset = false;
 	private Label numLoopslbl, currentLooplbl;
 
 	
@@ -99,17 +99,17 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		add(btnSubmit); // "super" Frame adds Button
 		btnSubmit.addActionListener(this);
 		
-		add(fixedpwlbl1);
+		//add(fixedpwlbl1);
 		tfFixedPW1.setEditable(false);
 		add(tfFixedPW1);
 		add(entropylbl1);
 		
-		add(fixedpwlbl2);
+		//add(fixedpwlbl2);
 		tfFixedPW2.setEditable(false);
 		add(tfFixedPW2);
 		add(entropylbl2);
 		
-		add(fixedpwlbl3);
+		//add(fixedpwlbl3);
 		tfFixedPW3.setEditable(false);
 		add(tfFixedPW3);
 		add(entropylbl3);
@@ -129,17 +129,40 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == btnSubmit) {
 			tfFixedPW1.setText("");
-			if(entropyBeforelbl != null)
-				entropyBeforelbl.setVisible(false);
+//			if(entropyBeforelbl != null)
+//				entropyBeforelbl.setVisible(false);
 			
 			String inputPW = userInputPW.getText();
 			String fixedPW = fixPassword(inputPW);
 			tfFixedPW1.setText(fixedPW);
+			Double pw1entropy = getEntropy(fixedPW);
+			entropylbl1.setText("PW 1 entropy: " + pw1entropy);
 			String fixedPW2 = fixPassword(inputPW);
 			tfFixedPW2.setText(fixedPW2);
+			Double pw2entropy = getEntropy(fixedPW2);
+			entropylbl2.setText("PW 2 entropy: " + pw2entropy);
 			String fixedPW3 = fixPassword(inputPW);
 			tfFixedPW3.setText(fixedPW3);
+			Double pw3entropy = getEntropy(fixedPW3);
+			entropylbl3.setText("PW 3 entropy: " + pw3entropy);
 			
+			Result result = subgui.nbvcxz.estimate(inputPW);
+			Double entropyBefore = result.getEntropy();
+			
+			if (!entropybeforelblset) {
+				entropyBeforelbl = new Label("Password you entered has an entropy of " + entropyBefore);
+
+				//addElement(entropyBeforelbl);
+				add(entropyBeforelbl);
+				setVisible(true);
+				entropybeforelblset = true;
+				
+			}
+			else {
+				entropyBeforelbl.setText("Password you entered has an entropy of " + entropyBefore);
+				setVisible(true);
+			
+			}
 			if (!generatelblset) {
 				add(generatelbl);
 				setVisible(true);
@@ -148,14 +171,22 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		}
 	}
 	
+	private Double getEntropy(String password) {
+		
+		Result result = subgui.nbvcxz.estimate(password);
+		Double entropy = result.getEntropy();
+		
+		return entropy;
+	}
+	
 	private String fixPassword(String inputPW) {
 		String fixedPW;
 		
 		Result result = subgui.nbvcxz.estimate(inputPW);
 		Double entropyBefore = result.getEntropy();
-		entropyBeforelbl = new Label("Password you entered has an entropy of " + entropyBefore);
-		
-		addElement(entropyBeforelbl);
+//		entropyBeforelbl = new Label("Password you entered has an entropy of " + entropyBefore);
+//		
+//		addElement(entropyBeforelbl);
 		//add(entropyBeforelbl);
 		//setVisible(true);
 		ArrayList<String> patterns = new ArrayList<String>();
