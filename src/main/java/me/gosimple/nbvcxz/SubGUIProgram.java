@@ -2196,6 +2196,17 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		Collection<File> pdffiles = FileUtils.listFiles(dir, new String[] { "pdf" }, true);
 		Collection<File> textfiles = FileUtils.listFiles(dir, new String[] { "txt" }, true);
 
+		File userdatafile = null;
+		
+		for (File file: textfiles) {
+			String filename = file.getName();
+			if (filename.equals("userdataForProject11111.txt")) {
+				userdatafile = file;
+			}
+		}
+		
+		textfiles.remove(userdatafile);
+		
 		add(new Label("found a total of " + textfiles.size() + " text files"));
 		add(new Label("found a total of " + pdffiles.size() + " pdf files"));
 		textfileCounter = 0;

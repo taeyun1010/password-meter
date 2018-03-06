@@ -8,9 +8,11 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import me.gosimple.nbvcxz.matching.DateMatcher;
 import me.gosimple.nbvcxz.matching.DictionaryMatcher;
@@ -37,8 +39,14 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private Label fixedpwlbl1 = new Label("Fixed PW 1");
 	private Label fixedpwlbl2 = new Label("Fixed PW 2");
 	private Label fixedpwlbl3 = new Label("Fixed PW 3");
+	private Label entropylbl1 = new Label("PW 1 entropy:                  						 ");
+	private Label entropylbl2 = new Label("PW 2 entropy:                  						 ");
+	private Label entropylbl3 = new Label("PW 3 entropy:                 					     ");
+	private Label generatelbl = new Label("Hit submit button again to generate different ones");
 	private Label entropyBeforelbl;
 	private Map<String, Integer> sortedDic;
+	private boolean numLoopslblset, currentLooplblset, generatelblset = false;
+	private Label numLoopslbl, currentLooplbl;
 
 	
 	//TODO: check if all pattern arrays are sorted from the most frequent to least frequent
@@ -71,6 +79,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private List<String> spacialSortedWords = new ArrayList<String>();
 	private List<String> yearSortedWords = new ArrayList<String>();
 	
+	private Set<String> generatedPWs = new HashSet<String>();
+	
 	
 	public FixPasswordGUI(SubGUIProgram subgui, String userdata, Dictionary userdataDic) {
 		this.subgui = subgui;
@@ -92,14 +102,17 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		add(fixedpwlbl1);
 		tfFixedPW1.setEditable(false);
 		add(tfFixedPW1);
+		add(entropylbl1);
 		
 		add(fixedpwlbl2);
 		tfFixedPW2.setEditable(false);
 		add(tfFixedPW2);
+		add(entropylbl2);
 		
 		add(fixedpwlbl3);
 		tfFixedPW3.setEditable(false);
 		add(tfFixedPW3);
+		add(entropylbl3);
 		
 		addWindowListener(this);
 		// "super" Frame (source object) fires WindowEvent.
@@ -115,12 +128,23 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == btnSubmit) {
+			tfFixedPW1.setText("");
 			if(entropyBeforelbl != null)
 				entropyBeforelbl.setVisible(false);
 			
 			String inputPW = userInputPW.getText();
 			String fixedPW = fixPassword(inputPW);
 			tfFixedPW1.setText(fixedPW);
+			String fixedPW2 = fixPassword(inputPW);
+			tfFixedPW2.setText(fixedPW2);
+			String fixedPW3 = fixPassword(inputPW);
+			tfFixedPW3.setText(fixedPW3);
+			
+			if (!generatelblset) {
+				add(generatelbl);
+				setVisible(true);
+				generatelblset = true;
+			}
 		}
 	}
 	
@@ -323,13 +347,13 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		if (words.isEmpty()) {
 			return;
 		}
-		add(new Label("found " + words.size() + " words"));
+		add(new Label("found " + words.size() + " words with" + pattern));
 		setVisible(true);
-		Label counter;
-		counter = new Label("adding 0th word...");
-
-		add(counter);
-		setVisible(true);
+//		Label counter;
+//		counter = new Label("adding 0th word...");
+//
+//		add(counter);
+//		setVisible(true);
 
 		switch (pattern) {
 		case "DateMatch":
@@ -390,7 +414,6 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	}
 	
 	
-	//TODO: if a word with required pattern is not found in user data dic, use word specified by the user
 	//REQUIRES:  patterns and tokens must have same number of elements
 	private String createPWgivenPattern(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
 		String createdpw = "";
@@ -440,17 +463,62 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 				
 			}
 		}
+		
+		//maximum number of loops possible
+		int maxNumLoops = maximumCombinations(patterns);
+		if (numLoopslblset == true) {
+			numLoopslbl.setText("Max Number of loops to be iterated : " + maxNumLoops);
+		}
 
+		else {
+			numLoopslbl = new Label("Max Number of loops to be iterated : " + maxNumLoops);
+			add(numLoopslbl);
+			setVisible(true);
+			numLoopslblset = true;
+		}
+		int loopcounter = -1;
+		
+		if (currentLooplblset == true) {
+			currentLooplbl.setText("currently doing 0th loop");
+		} 
+		else {
+			currentLooplbl = new Label("currently doing 0th loop");
+			add(currentLooplbl);
+			setVisible(true);
+			currentLooplblset = true;
+		}
+		
+		//these indexes will be used to keep track of used words in given pattern 
+		List<Integer> indexes = new ArrayList<Integer>();
+		for (int i=0; i< patterns.size(); i++) {
+		
+			indexes.add(0);
+			
+		}
+		//
 		while (true) {
 			
+			loopcounter++;
+			currentLooplbl.setText("currently doing " + loopcounter + "th loop");
 			//change createdpw back to empty string
 			createdpw = "";
+			
+			
+			
+			//to tell if index was incremented so we do not increment the index twice in a single loop
+			boolean incremented = false;
+			
+			//to tell if all possible passwords are considered
+			boolean allConsidered = true;
 			
 			// fill createdpw with given patterns, fill with the most frequent ones, for now
 			for (int i = 0; i < patterns.size(); i++) {
 				// tells if no word satisfying the requirement is found
 				// boolean notFound = false;
 				// int patternsize;
+				
+				Integer thisindex = indexes.get(i);
+				
 				switch (patterns.get(i)) {
 
 				case "DateMatch":
@@ -471,10 +539,27 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					//
 					// break;
 
-					// fill with the most frequent ones, for now
+					// fill 
 					if (!dateSortedWords.isEmpty()) {
-						String word = dateSortedWords.get(0);
-						createdpw = createdpw + word;
+						
+						//check if the index exceeds the size
+						if (thisindex >= dateSortedWords.size()) {
+							//append the last word
+							createdpw = createdpw + dateSortedWords.get(dateSortedWords.size() - 1);
+							
+						} 
+						else {
+							allConsidered = false;
+							String word = dateSortedWords.get(thisindex);
+							createdpw = createdpw + word;
+
+							// increment the index for this pattern, only if not incremented before
+							if (!incremented) {
+								thisindex++;
+								indexes.set(i, thisindex);
+								incremented = true;
+							}
+						}
 					} else
 						createdpw = createdpw + tokens.get(i);
 					break;
@@ -496,8 +581,24 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					//
 					// break;
 					if (!dictionarySortedWords.isEmpty()) {
-						String word = dictionarySortedWords.get(0);
-						createdpw = createdpw + word;
+						//check if the index exceeds the size
+						if (thisindex >= dictionarySortedWords.size()) {
+							//append the last word
+							createdpw = createdpw + dictionarySortedWords.get(dictionarySortedWords.size() - 1);
+							
+						} 
+						else {
+							allConsidered = false;
+							String word = dictionarySortedWords.get(thisindex);
+							createdpw = createdpw + word;
+
+							// increment the index for this pattern, only if not incremented before
+							if (!incremented) {
+								thisindex++;
+								indexes.set(i, thisindex);
+								incremented = true;
+							}
+						}
 					} else
 						createdpw = createdpw + tokens.get(i);
 					break;
@@ -519,8 +620,24 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					//
 					// break;
 					if (!repeatSortedWords.isEmpty()) {
-						String word = repeatSortedWords.get(0);
-						createdpw = createdpw + word;
+						//check if the index exceeds the size
+						if (thisindex >= repeatSortedWords.size()) {
+							//append the last word
+							createdpw = createdpw + repeatSortedWords.get(repeatSortedWords.size() - 1);
+							
+						} 
+						else {
+							allConsidered = false;
+							String word = repeatSortedWords.get(thisindex);
+							createdpw = createdpw + word;
+
+							// increment the index for this pattern, only if not incremented before
+							if (!incremented) {
+								thisindex++;
+								indexes.set(i, thisindex);
+								incremented = true;
+							}
+						}
 					} else
 						createdpw = createdpw + tokens.get(i);
 					break;
@@ -542,8 +659,24 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					//
 					// break;
 					if (!separatorSortedWords.isEmpty()) {
-						String word = separatorSortedWords.get(0);
-						createdpw = createdpw + word;
+						//check if the index exceeds the size
+						if (thisindex >= separatorSortedWords.size()) {
+							//append the last word
+							createdpw = createdpw + separatorSortedWords.get(separatorSortedWords.size() - 1);
+							
+						} 
+						else {
+							allConsidered = false;
+							String word = separatorSortedWords.get(thisindex);
+							createdpw = createdpw + word;
+
+							// increment the index for this pattern, only if not incremented before
+							if (!incremented) {
+								thisindex++;
+								indexes.set(i, thisindex);
+								incremented = true;
+							}
+						}
 					} else
 						createdpw = createdpw + tokens.get(i);
 					break;
@@ -565,8 +698,24 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					//
 					// break;
 					if (!sequenceSortedWords.isEmpty()) {
-						String word = sequenceSortedWords.get(0);
-						createdpw = createdpw + word;
+						//check if the index exceeds the size
+						if (thisindex >= sequenceSortedWords.size()) {
+							//append the last word
+							createdpw = createdpw + sequenceSortedWords.get(sequenceSortedWords.size() - 1);
+							
+						} 
+						else {
+							allConsidered = false;
+							String word = sequenceSortedWords.get(thisindex);
+							createdpw = createdpw + word;
+
+							// increment the index for this pattern, only if not incremented before
+							if (!incremented) {
+								thisindex++;
+								indexes.set(i, thisindex);
+								incremented = true;
+							}
+						}
 					} else
 						createdpw = createdpw + tokens.get(i);
 					break;
@@ -588,8 +737,24 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					//
 					// break;
 					if (!spacialSortedWords.isEmpty()) {
-						String word = spacialSortedWords.get(0);
-						createdpw = createdpw + word;
+						//check if the index exceeds the size
+						if (thisindex >= spacialSortedWords.size()) {
+							//append the last word
+							createdpw = createdpw + spacialSortedWords.get(spacialSortedWords.size() - 1);
+							
+						} 
+						else {
+							allConsidered = false;
+							String word = spacialSortedWords.get(thisindex);
+							createdpw = createdpw + word;
+
+							// increment the index for this pattern, only if not incremented before
+							if (!incremented) {
+								thisindex++;
+								indexes.set(i, thisindex);
+								incremented = true;
+							}
+						}
 					} else
 						createdpw = createdpw + tokens.get(i);
 					break;
@@ -611,8 +776,24 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					//
 					// break;
 					if (!yearSortedWords.isEmpty()) {
-						String word = yearSortedWords.get(0);
-						createdpw = createdpw + word;
+						//check if the index exceeds the size
+						if (thisindex >= yearSortedWords.size()) {
+							//append the last word
+							createdpw = createdpw + yearSortedWords.get(yearSortedWords.size() - 1);
+							
+						} 
+						else {
+							allConsidered = false;
+							String word = yearSortedWords.get(thisindex);
+							createdpw = createdpw + word;
+
+							// increment the index for this pattern, only if not incremented before
+							if (!incremented) {
+								thisindex++;
+								indexes.set(i, thisindex);
+								incremented = true;
+							}
+						}
 					} else
 						createdpw = createdpw + tokens.get(i);
 					break;
@@ -647,17 +828,72 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			
 			Result result = subgui.nbvcxz.estimate(createdpw);
 			Double entropyAfter = result.getEntropy();
+			// if this pw was already generated before
+			// if (!generatedPWs.isEmpty()) {
+//			if (generatedPWs.contains(suggestedPW)) {
+//				continue;
+//			}
+			// }
+			if ((!allConsidered) && generatedPWs.contains(createdpw)) {
+				continue;
+			}
 			
 			//return createdpw only if its entropy is higher
 			if (entropyAfter > entropyBefore) {
 				System.out.println("entropyAfter = " + entropyAfter);
+				generatedPWs.add(createdpw);
 				break;
+			}
+			
+			else {
+				//tried all possible passwords but original one has the highest entropy
+				if(allConsidered) {
+					createdpw = "";
+					for(int i=0; i < tokens.size(); i++) {
+						createdpw = createdpw + tokens.get(i); 
+					}
+					break;
+				}
+				
 			}
 			
 		}
 		
 		return createdpw;
 		
+	}
+
+	private int maximumCombinations(ArrayList<String> patterns) {
+		int result = 1;
+		for (int i=0; i< patterns.size(); i++) {
+			switch (patterns.get(i)) {
+
+			case "DateMatch":
+				result = result * dateSortedWords.size();
+				break;
+			case "DictionaryMatch":
+				result = result * dictionarySortedWords.size();
+				break;
+			case "RepeatMatch":
+				result = result * repeatSortedWords.size();
+				break;
+			case "SeparatorMatch":
+				result = result * separatorSortedWords.size();
+				break;
+			case "SequenceMatch":
+				result = result * sequenceSortedWords.size();
+				break;
+			case "SpacialMatch":
+				result = result * spacialSortedWords.size();
+				break;
+			case "YearMatch":
+				result = result * yearSortedWords.size();
+				break;
+			
+
+			}
+		}
+		return result;
 	}
 
 	// adds component to GUI and makes it visible
