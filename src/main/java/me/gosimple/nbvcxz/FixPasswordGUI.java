@@ -47,6 +47,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private Map<String, Integer> sortedDic;
 	private boolean numLoopslblset, currentLooplblset, generatelblset, entropybeforelblset = false;
 	private Label numLoopslbl, currentLooplbl;
+	private Label minentropylbl = new Label("Enter minimum zxcvbn entropy password must have");
+	private TextField tfminEntropy = new TextField("", 2);
 
 	
 	//TODO: check if all pattern arrays are sorted from the most frequent to least frequent
@@ -96,6 +98,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		userInputPW.setEditable(true);
 		add(userInputPW);
 	
+		add(minentropylbl); // "super" Frame adds an anonymous Label
+		tfminEntropy.setEditable(true);
+		add(tfminEntropy);
+		
 		add(btnSubmit); // "super" Frame adds Button
 		btnSubmit.addActionListener(this);
 		
@@ -448,6 +454,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	//REQUIRES:  patterns and tokens must have same number of elements
 	private String createPWgivenPattern(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
 		String createdpw = "";
+		int minEntropy = Integer.parseInt(tfminEntropy.getText());
 		
 		//find words with given pattern if they were not found before
 		for(int i=0; i<patterns.size(); i++) {
@@ -869,8 +876,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 				continue;
 			}
 			
-			//return createdpw only if its entropy is higher
-			if (entropyAfter > entropyBefore) {
+			//return createdpw only if its entropy is higher than original, and higher than or equal to minEntropy
+			if ((entropyAfter > entropyBefore) && (entropyAfter >= minEntropy)) {
 				System.out.println("entropyAfter = " + entropyAfter);
 				generatedPWs.add(createdpw);
 				break;
@@ -882,6 +889,12 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					createdpw = "";
 					for(int i=0; i < tokens.size(); i++) {
 						createdpw = createdpw + tokens.get(i); 
+					}
+					
+					//inform user if achieving minEntropy was not possible
+					if (entropyBefore < minEntropy) {
+						add(new Label("Specified entropy could not be met"));
+						setVisible(true);
 					}
 					break;
 				}
