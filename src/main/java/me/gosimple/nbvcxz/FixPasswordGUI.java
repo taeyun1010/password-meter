@@ -173,17 +173,24 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			// }
 
 			String inputPW = userInputPW.getText();
-			String fixedPW = fixPassword(inputPW);
-			tfFixedPW1.setText(fixedPW);
-			Double pw1entropy = getEntropy(fixedPW);
+			GeneratedPW fixedPW = fixPassword(inputPW);
+			tfFixedPW1.setText(fixedPW.password);
+			if(fixedPW.containedHanguel)
+				add(new Label("PW 1 contained Hanguel"));
+			Double pw1entropy = getEntropy(fixedPW.password);
 			entropylbl1.setText("PW 1 entropy: " + pw1entropy);
-			String fixedPW2 = fixPassword(inputPW);
-			tfFixedPW2.setText(fixedPW2);
-			Double pw2entropy = getEntropy(fixedPW2);
+			GeneratedPW fixedPW2 = fixPassword(inputPW);
+			tfFixedPW2.setText(fixedPW2.password);
+			if(fixedPW2.containedHanguel)
+				add(new Label("PW 2 contained Hanguel"));
+			Double pw2entropy = getEntropy(fixedPW2.password);
 			entropylbl2.setText("PW 2 entropy: " + pw2entropy);
-			String fixedPW3 = fixPassword(inputPW);
-			tfFixedPW3.setText(fixedPW3);
-			Double pw3entropy = getEntropy(fixedPW3);
+			GeneratedPW fixedPW3 = fixPassword(inputPW);
+			tfFixedPW3.setText(fixedPW3.password);
+			if(fixedPW3.containedHanguel)
+				add(new Label("PW 3 contained Hanguel"));
+			setVisible(true);
+			Double pw3entropy = getEntropy(fixedPW3.password);
 			entropylbl3.setText("PW 3 entropy: " + pw3entropy);
 
 			Result result = subgui.nbvcxz.estimate(inputPW);
@@ -219,8 +226,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		return entropy;
 	}
 	
-	private String fixPassword(String inputPW) {
-		String fixedPW;
+	private GeneratedPW fixPassword(String inputPW) {
+		GeneratedPW fixedPW;
 		
 		Result result = subgui.nbvcxz.estimate(inputPW);
 		Double entropyBefore = result.getEntropy();
@@ -487,7 +494,11 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	
 	
 	//REQUIRES:  patterns and tokens must have same number of elements
-	private String createPWgivenPattern(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
+	private GeneratedPW createPWgivenPattern(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
+		GeneratedPW response = new GeneratedPW();
+		response.meaning = "";
+		response.containedHanguel = false;
+		response.password = "";
 		String createdpw = "";
 		int minEntropy = Integer.parseInt(tfminEntropy.getText());
 		
@@ -575,7 +586,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			currentLooplbl.setText("currently doing " + loopcounter + "th loop");
 			//change createdpw back to empty string
 			createdpw = "";
-			
+			response.meaning = "";
+			response.containedHanguel = false;
+			response.password = "";
 			
 			
 			//to tell if index was incremented so we do not increment the index twice in a single loop
@@ -603,8 +616,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							//append the last word
 							String word = dateSortedWords.get(dateSortedWords.size() - 1);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 							
 						} 
@@ -612,8 +627,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							allConsidered = false;
 							String word = dateSortedWords.get(thisindex);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 
 							// increment the index for this pattern, only if not incremented before
@@ -626,8 +643,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					} else {
 						String word = tokens.get(i);
 						//convert if Hanguel
-						if(HanguelHandler.isHanguel(word))
+						if(HanguelHandler.isHanguel(word)) {
 							word = HanguelHandler.convertToEng(word);
+							response.containedHanguel = true;
+						}
 						createdpw = createdpw + word;
 					}
 					break;
@@ -640,8 +659,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							//append the last word
 							String word = dictionarySortedWords.get(dictionarySortedWords.size() - 1);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 							
 						} 
@@ -649,8 +670,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							allConsidered = false;
 							String word = dictionarySortedWords.get(thisindex);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 
 							// increment the index for this pattern, only if not incremented before
@@ -663,28 +686,15 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					} else {
 						String word = tokens.get(i);
 						//convert if Hanguel
-						if(HanguelHandler.isHanguel(word))
+						if(HanguelHandler.isHanguel(word)) {
 							word = HanguelHandler.convertToEng(word);
+							response.containedHanguel = true;
+						}
 						createdpw = createdpw + word;
 					}
 					break;
 				case "RepeatMatch":
-					// patternsize = repeatPatterns.size();
-					// for (int j = 0; j < patternsize; j++) {
-					// String thisword = repeatPatterns.get(j);
-					// // add only if the word is not one of bannedStr
-					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-					// createdpw = createdpw + thisword;
-					// break;
-					// }
-					// if (j == (patternsize -1))
-					// notFound = true;
-					// }
-					//
-					// if (notFound)
-					// createdpw = createdpw + tokens.get(i);
-					//
-					// break;
+					
 					if (!repeatSortedWords.isEmpty()) {
 						
 						//check if the index exceeds the size
@@ -692,8 +702,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							//append the last word
 							String word = repeatSortedWords.get(repeatSortedWords.size() - 1);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 							
 						} 
@@ -701,8 +713,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							allConsidered = false;
 							String word = repeatSortedWords.get(thisindex);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 
 							// increment the index for this pattern, only if not incremented before
@@ -715,28 +729,15 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					} else {
 						String word = tokens.get(i);
 						//convert if Hanguel
-						if(HanguelHandler.isHanguel(word))
+						if(HanguelHandler.isHanguel(word)) {
 							word = HanguelHandler.convertToEng(word);
+							response.containedHanguel = true;
+						}
 						createdpw = createdpw + word;
 					}
 					break;
 				case "SeparatorMatch":
-					// patternsize = separatorPatterns.size();
-					// for (int j = 0; j < patternsize; j++) {
-					// String thisword = separatorPatterns.get(j);
-					// // add only if the word is not one of bannedStr
-					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-					// createdpw = createdpw + thisword;
-					// break;
-					// }
-					// if (j == (patternsize -1))
-					// notFound = true;
-					// }
-					//
-					// if (notFound)
-					// createdpw = createdpw + tokens.get(i);
-					//
-					// break;
+				
 					if (!separatorSortedWords.isEmpty()) {
 						
 						//check if the index exceeds the size
@@ -744,8 +745,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							//append the last word
 							String word = separatorSortedWords.get(separatorSortedWords.size() - 1);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 							
 						} 
@@ -753,8 +756,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							allConsidered = false;
 							String word = separatorSortedWords.get(thisindex);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 
 							// increment the index for this pattern, only if not incremented before
@@ -767,28 +772,15 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					} else {
 						String word = tokens.get(i);
 						//convert if Hanguel
-						if(HanguelHandler.isHanguel(word))
+						if(HanguelHandler.isHanguel(word)) {
 							word = HanguelHandler.convertToEng(word);
+							response.containedHanguel = true;
+						}
 						createdpw = createdpw + word;
 					}
 					break;
 				case "SequenceMatch":
-					// patternsize = sequencePatterns.size();
-					// for (int j = 0; j < patternsize; j++) {
-					// String thisword = sequencePatterns.get(j);
-					// // add only if the word is not one of bannedStr
-					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-					// createdpw = createdpw + thisword;
-					// break;
-					// }
-					// if (j == (patternsize -1))
-					// notFound = true;
-					// }
-					//
-					// if (notFound)
-					// createdpw = createdpw + tokens.get(i);
-					//
-					// break;
+					
 					if (!sequenceSortedWords.isEmpty()) {
 						
 						//check if the index exceeds the size
@@ -796,8 +788,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							//append the last word
 							String word = sequenceSortedWords.get(sequenceSortedWords.size() - 1);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 							
 						} 
@@ -805,8 +799,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							allConsidered = false;
 							String word = sequenceSortedWords.get(thisindex);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 
 							// increment the index for this pattern, only if not incremented before
@@ -819,28 +815,15 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					} else {
 						String word = tokens.get(i);
 						//convert if Hanguel
-						if(HanguelHandler.isHanguel(word))
+						if(HanguelHandler.isHanguel(word)) {
 							word = HanguelHandler.convertToEng(word);
+							response.containedHanguel = true;
+						}
 						createdpw = createdpw + word;
 					}
 					break;
 				case "SpacialMatch":
-					// patternsize = spacialPatterns.size();
-					// for (int j = 0; j < patternsize; j++) {
-					// String thisword = spacialPatterns.get(j);
-					// // add only if the word is not one of bannedStr
-					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-					// createdpw = createdpw + thisword;
-					// break;
-					// }
-					// if (j == (patternsize -1))
-					// notFound = true;
-					// }
-					//
-					// if (notFound)
-					// createdpw = createdpw + tokens.get(i);
-					//
-					// break;
+				
 					if (!spacialSortedWords.isEmpty()) {
 						
 						//check if the index exceeds the size
@@ -848,8 +831,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							//append the last word
 							String word = spacialSortedWords.get(spacialSortedWords.size() - 1);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 							
 						} 
@@ -857,8 +842,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							allConsidered = false;
 							String word = spacialSortedWords.get(thisindex);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 
 							// increment the index for this pattern, only if not incremented before
@@ -871,28 +858,15 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					} else {
 						String word = tokens.get(i);
 						//convert if Hanguel
-						if(HanguelHandler.isHanguel(word))
+						if(HanguelHandler.isHanguel(word)) {
 							word = HanguelHandler.convertToEng(word);
+							response.containedHanguel = true;
+						}
 						createdpw = createdpw + word;
 					}
 					break;
 				case "YearMatch":
-					// patternsize = yearPatterns.size();
-					// for (int j = 0; j < patternsize; j++) {
-					// String thisword = yearPatterns.get(j);
-					// // add only if the word is not one of bannedStr
-					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-					// createdpw = createdpw + thisword;
-					// break;
-					// }
-					// if (j == (patternsize -1))
-					// notFound = true;
-					// }
-					//
-					// if (notFound)
-					// createdpw = createdpw + tokens.get(i);
-					//
-					// break;
+					
 					if (!yearSortedWords.isEmpty()) {
 						
 						//check if the index exceeds the size
@@ -900,8 +874,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							//append the last word
 							String word = yearSortedWords.get(yearSortedWords.size() - 1);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 							
 						} 
@@ -909,8 +885,10 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							allConsidered = false;
 							String word = yearSortedWords.get(thisindex);
 							//convert if Hanguel
-							if(HanguelHandler.isHanguel(word))
+							if(HanguelHandler.isHanguel(word)) {
 								word = HanguelHandler.convertToEng(word);
+								response.containedHanguel = true;
+							}
 							createdpw = createdpw + word;
 
 							// increment the index for this pattern, only if not incremented before
@@ -923,38 +901,23 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					} else {
 						String word = tokens.get(i);
 						//convert if Hanguel
-						if(HanguelHandler.isHanguel(word))
+						if(HanguelHandler.isHanguel(word)) {
 							word = HanguelHandler.convertToEng(word);
+							response.containedHanguel = true;
+						}
 						createdpw = createdpw + word;
 					}
 					break;
 				case "BruteForceMatch":
-					// patternsize = yearPatterns.size();
-					// for (int j = 0; j < patternsize; j++) {
-					// String thisword = yearPatterns.get(j);
-					// // add only if the word is not one of bannedStr
-					// if (!(Arrays.asList(bannedStr).contains(thisword.toLowerCase()))) {
-					// createdpw = createdpw + thisword;
-					// break;
-					// }
-					// if (j == (patternsize -1))
-					// notFound = true;
-					// }
-					//
-					// if (notFound)
-					// createdpw = createdpw + tokens.get(i);
-					//
-					// break;
-
-					// if (bruteforcePatterns.size() != 0)
-					// createdpw = createdpw + bruteforcePatterns.get(0);
-					// else
+				
 
 					// if bruteforcematch just add what user input
 					String word = tokens.get(i);
 					//convert if Hanguel
-					if(HanguelHandler.isHanguel(word))
+					if(HanguelHandler.isHanguel(word)) {
 						word = HanguelHandler.convertToEng(word);
+						response.containedHanguel = true;
+					}
 					createdpw = createdpw + word;
 					break;
 
@@ -999,8 +962,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			}
 			
 		}
-		
-		return createdpw;
+		response.password =createdpw;
+		return response;
 		
 	}
 
