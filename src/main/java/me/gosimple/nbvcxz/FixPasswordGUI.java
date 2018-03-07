@@ -36,6 +36,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private TextField tfFixedPW3 = new TextField("", 40);
 	private TextField userInputPW = new TextField("", 40);
 	private Button btnSubmit = new Button("Submit");
+	private Button btnAbort;
 	private Label fixedpwlbl1 = new Label("Fixed PW 1");
 	private Label fixedpwlbl2 = new Label("Fixed PW 2");
 	private Label fixedpwlbl3 = new Label("Fixed PW 3");
@@ -43,12 +44,15 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private Label entropylbl2 = new Label("PW 2 entropy:");
 	private Label entropylbl3 = new Label("PW 3 entropy:");
 	private Label generatelbl = new Label("Hit submit button again to generate different ones");
+	private Label abortlbl = new Label("Abort button pressed");
 	private Label entropyBeforelbl;
 	private Map<String, Integer> sortedDic;
-	private boolean numLoopslblset, currentLooplblset, generatelblset, entropybeforelblset = false;
+	private boolean numLoopslblset, currentLooplblset, generatelblset, entropybeforelblset, btnAbortset, abortlblset = false;
 	private Label numLoopslbl, currentLooplbl;
 	private Label minentropylbl = new Label("Enter minimum zxcvbn entropy password must have");
 	private TextField tfminEntropy = new TextField("", 2);
+	
+	private volatile Thread t;
 
 	
 	//TODO: check if all pattern arrays are sorted from the most frequent to least frequent
@@ -133,11 +137,40 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 
 	@Override
 	public void actionPerformed(ActionEvent evt) {
+		if (evt.getSource() == btnAbort) {
+			//mustAbort = true;
+			t.interrupt();
+			//t = null;
+		}
 		if (evt.getSource() == btnSubmit) {
-			tfFixedPW1.setText("");
-//			if(entropyBeforelbl != null)
-//				entropyBeforelbl.setVisible(false);
-			
+			if(abortlblset) {
+				abortlbl.setVisible(false);
+				abortlblset = false;
+			}
+			if(btnAbortset == true) {
+				//do nothing
+			}
+			else {
+				btnAbort = new Button("Abort"); // Construct the Button
+				add(btnAbort); // "super" Frame adds Button
+				btnAbort.setVisible(true);
+				btnAbort.addActionListener(this);
+				btnAbortset = true;
+			}
+
+			// if(entropyBeforelbl != null)
+			// entropyBeforelbl.setVisible(false);
+
+			// if (Thread.currentThread().isInterrupted()) {
+			// if(!abortlblset) {
+			// addElement(abortlbl);
+			// return;
+			// }
+			// else {
+			// return;
+			// }
+			// }
+
 			String inputPW = userInputPW.getText();
 			String fixedPW = fixPassword(inputPW);
 			tfFixedPW1.setText(fixedPW);
@@ -151,29 +184,29 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			tfFixedPW3.setText(fixedPW3);
 			Double pw3entropy = getEntropy(fixedPW3);
 			entropylbl3.setText("PW 3 entropy: " + pw3entropy);
-			
+
 			Result result = subgui.nbvcxz.estimate(inputPW);
 			Double entropyBefore = result.getEntropy();
-			
+
 			if (!entropybeforelblset) {
 				entropyBeforelbl = new Label("Password you entered has an entropy of " + entropyBefore);
 
-				//addElement(entropyBeforelbl);
+				// addElement(entropyBeforelbl);
 				add(entropyBeforelbl);
 				setVisible(true);
 				entropybeforelblset = true;
-				
-			}
-			else {
+
+			} else {
 				entropyBeforelbl.setText("Password you entered has an entropy of " + entropyBefore);
 				setVisible(true);
-			
+
 			}
 			if (!generatelblset) {
 				add(generatelbl);
 				setVisible(true);
 				generatelblset = true;
 			}
+
 		}
 	}
 	
@@ -199,6 +232,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		ArrayList<String> tokens = new ArrayList<String>();
 		for (Match match : result.getMatches())
         {
+			
             System.out.println("-----------------------------------");
             System.out.println(match.getDetails());
             String patternName = match.getClass().getSimpleName();

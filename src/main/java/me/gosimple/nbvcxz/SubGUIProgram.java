@@ -336,7 +336,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		tfEnglish.setEditable(false);
 		add(tfEnglish);
 		
-		localfilelbl = new Label("Search local files?");
+		localfilelbl = new Label("Search local files? Only supported on Windows");
 		add(localfilelbl); // "super" Frame adds an anonymous Label
 
 		btnLocalFile = new Button("Yes"); // Construct the Button
