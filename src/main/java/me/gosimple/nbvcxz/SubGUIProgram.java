@@ -116,7 +116,7 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	private Label searchPtweetlbl = new Label("Search written tweets?");
 	private Label searchGmaillbl = new Label("Search Gmail?");
-	
+	//private Label searchFacebooklbl = new Label("Search Facebook?");
 	private Label tverifierplbl = new Label("Enter Twitter verifier for personal tweets");
 	
 	private Label minPWlenlbl = new Label("Enter Min pw length");
@@ -325,6 +325,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		//
 
 		
+		//FacebookScribeAuthenticator.openBrowser(this);
+	
 		add(new Label("Convert Hanguel to English")); 
 		tfHanguel = new TextField("", 40); // Construct the TextField
 		tfHanguel.setEditable(true);
@@ -503,6 +505,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			add(btnFixPass);
 			btnFixPass.addActionListener(this);
 			
+			//displayFacebookUI();
+			
 			setVisible(true);
 //			add(new Label("Enter Min pw length")); // "super" Frame adds an anonymous Label
 //			tfpwMinLen = new TextField("", 1); // Construct the TextField
@@ -610,6 +614,8 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 			
 			add(btnFixPass);
 			btnFixPass.addActionListener(this);
+			
+			//displayFacebookUI();
 			
 			setVisible(true);
 			
@@ -1265,6 +1271,10 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 
 	}
 
+
+//	private void displayFacebookUI() {
+//		
+//	}
 
 //	private void generateTDpw() {
 //		TDthread = new Thread(new Runnable() {
@@ -2206,6 +2216,17 @@ public class SubGUIProgram extends Frame implements ActionListener, WindowListen
 		}
 		
 		textfiles.remove(userdatafile);
+		
+		File hanguelmeaningfile = null;
+		
+		for (File file: textfiles) {
+			String filename = file.getName();
+			if (filename.equals("HanguelMeaning11111.txt")) {
+				hanguelmeaningfile = file;
+			}
+		}
+		
+		textfiles.remove(hanguelmeaningfile);
 		
 		add(new Label("found a total of " + textfiles.size() + " text files"));
 		add(new Label("found a total of " + pdffiles.size() + " pdf files"));

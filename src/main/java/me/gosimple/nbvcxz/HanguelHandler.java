@@ -1,5 +1,12 @@
 package me.gosimple.nbvcxz;
 
+import static org.junit.Assert.assertNotSame;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+
 public class HanguelHandler {
 	
 	//for one letter
@@ -299,5 +306,61 @@ public class HanguelHandler {
 		
 
 		return partialResult;
+	}
+	
+	static void printToHanguelMeaningtxt(GeneratedPW pw1, GeneratedPW pw2, GeneratedPW pw3) {
+		String pw1meaning = pw1.meaning;
+		String pw2meaning = pw2.meaning;
+		String pw3meaning = pw3.meaning;
+		
+		 // get path to documents folder
+		String myDocuments = null;
+
+		try {
+		    Process p =  Runtime.getRuntime().exec("reg query \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v personal");
+		    p.waitFor();
+
+		    InputStream in = p.getInputStream();
+		    byte[] b = new byte[in.available()];
+		    in.read(b);
+		    in.close();
+
+		    myDocuments = new String(b);
+		    myDocuments = myDocuments.split("\\s\\s+")[4];
+
+		} catch(Throwable t) {
+		    t.printStackTrace();
+		}
+	
+		
+		myDocuments = myDocuments + "\\HanguelMeaning11111.txt";
+		
+		
+			PrintWriter writer = null;
+			try {
+				writer = new PrintWriter(myDocuments, "UTF-8");
+				//String meaning = pw1meaning + pw2meaning + pw3meaning;
+				//System.out.println(meaning);
+				writer.println(pw1meaning);
+				writer.println(pw2meaning);
+				writer.println(pw3meaning);
+				//writer.println("aaaa");
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+			
+			writer.close();
+			
+//			//loop a Map
+//			for (Map.Entry<String, Integer> entry : map.entrySet()) {
+//				writer.println(entry.getKey());
+//			
+//			}
+		
 	}
 }

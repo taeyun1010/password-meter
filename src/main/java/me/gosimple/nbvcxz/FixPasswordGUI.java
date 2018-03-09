@@ -45,12 +45,16 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private Label entropylbl3 = new Label("PW 3 entropy:");
 	private Label generatelbl = new Label("Hit submit button again to generate different ones");
 	private Label abortlbl = new Label("Abort button pressed");
+	private Label maxPWlenlbl = new Label("Enter Max pw length");
+	private TextField tfpwMaxLen = new TextField("", 2);
 	private Label entropyBeforelbl;
 	private Map<String, Integer> sortedDic;
 	private boolean numLoopslblset, currentLooplblset, generatelblset, entropybeforelblset, btnAbortset, abortlblset = false;
 	private Label numLoopslbl, currentLooplbl;
 	private Label minentropylbl = new Label("Enter minimum zxcvbn entropy password must have");
 	private TextField tfminEntropy = new TextField("", 2);
+	
+	private Checkbox randomCheckbox = new Checkbox("try random combination");
 	
 	private volatile Thread t;
 
@@ -106,6 +110,11 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		tfminEntropy.setEditable(true);
 		add(tfminEntropy);
 		
+		add(maxPWlenlbl);
+		tfpwMaxLen.setEditable(true);
+		add(tfpwMaxLen);
+		
+		
 		add(btnSubmit); // "super" Frame adds Button
 		btnSubmit.addActionListener(this);
 		
@@ -143,6 +152,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 //			t.interrupt();
 //			//t = null;
 //		}
+		
 		if (evt.getSource() == btnSubmit) {
 			if(abortlblset) {
 				abortlbl.setVisible(false);
@@ -175,26 +185,32 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			String inputPW = userInputPW.getText();
 			GeneratedPW fixedPW = fixPassword(inputPW);
 			tfFixedPW1.setText(fixedPW.password);
-			if(fixedPW.containedHanguel)
-				add(new Label("PW 1 contained Hanguel"));
+			//if(fixedPW.containedHanguel)
+				//add(new Label("PW 1 meaning : " + fixedPW.meaning));
 			Double pw1entropy = getEntropy(fixedPW.password);
 			entropylbl1.setText("PW 1 entropy: " + pw1entropy);
 			GeneratedPW fixedPW2 = fixPassword(inputPW);
 			tfFixedPW2.setText(fixedPW2.password);
-			if(fixedPW2.containedHanguel)
-				add(new Label("PW 2 contained Hanguel"));
+			//if(fixedPW2.containedHanguel)
+				//add(new Label("PW 2 meaning : " + fixedPW2.meaning));
 			Double pw2entropy = getEntropy(fixedPW2.password);
 			entropylbl2.setText("PW 2 entropy: " + pw2entropy);
 			GeneratedPW fixedPW3 = fixPassword(inputPW);
 			tfFixedPW3.setText(fixedPW3.password);
-			if(fixedPW3.containedHanguel)
-				add(new Label("PW 3 contained Hanguel"));
+			//if(fixedPW3.containedHanguel)
+				//add(new Label("PW 3 meaning : " + fixedPW3.meaning));
 			setVisible(true);
 			Double pw3entropy = getEntropy(fixedPW3.password);
 			entropylbl3.setText("PW 3 entropy: " + pw3entropy);
 
 			Result result = subgui.nbvcxz.estimate(inputPW);
 			Double entropyBefore = result.getEntropy();
+			
+			if(fixedPW.containedHanguel || fixedPW2.containedHanguel || fixedPW3.containedHanguel) {
+				HanguelHandler.printToHanguelMeaningtxt(fixedPW, fixedPW2, fixedPW3);
+				add(new Label("printed to HanguelMeaningtxt11111.txt"));
+				setVisible(true);
+			}
 
 			if (!entropybeforelblset) {
 				entropyBeforelbl = new Label("Password you entered has an entropy of " + entropyBefore);
@@ -501,6 +517,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		response.password = "";
 		String createdpw = "";
 		int minEntropy = Integer.parseInt(tfminEntropy.getText());
+		int maxLength = Integer.parseInt(tfpwMaxLen.getText());
 		
 		//find words with given pattern if they were not found before
 		for(int i=0; i<patterns.size(); i++) {
@@ -617,7 +634,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = dateSortedWords.get(dateSortedWords.size() - 1);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -628,7 +647,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = dateSortedWords.get(thisindex);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -644,7 +665,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						String word = tokens.get(i);
 						//convert if Hanguel
 						if(HanguelHandler.isHanguel(word)) {
+							String originalword = word;
 							word = HanguelHandler.convertToEng(word);
+							response.meaning = word + " stands for " + originalword;
 							response.containedHanguel = true;
 						}
 						createdpw = createdpw + word;
@@ -660,7 +683,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = dictionarySortedWords.get(dictionarySortedWords.size() - 1);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -671,7 +696,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = dictionarySortedWords.get(thisindex);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -687,7 +714,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						String word = tokens.get(i);
 						//convert if Hanguel
 						if(HanguelHandler.isHanguel(word)) {
+							String originalword = word;
 							word = HanguelHandler.convertToEng(word);
+							response.meaning = word + " stands for " + originalword;
 							response.containedHanguel = true;
 						}
 						createdpw = createdpw + word;
@@ -703,7 +732,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = repeatSortedWords.get(repeatSortedWords.size() - 1);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -714,7 +745,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = repeatSortedWords.get(thisindex);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -730,7 +763,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						String word = tokens.get(i);
 						//convert if Hanguel
 						if(HanguelHandler.isHanguel(word)) {
+							String originalword = word;
 							word = HanguelHandler.convertToEng(word);
+							response.meaning = word + " stands for " + originalword;
 							response.containedHanguel = true;
 						}
 						createdpw = createdpw + word;
@@ -746,7 +781,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = separatorSortedWords.get(separatorSortedWords.size() - 1);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -757,7 +794,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = separatorSortedWords.get(thisindex);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -773,7 +812,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						String word = tokens.get(i);
 						//convert if Hanguel
 						if(HanguelHandler.isHanguel(word)) {
+							String originalword = word;
 							word = HanguelHandler.convertToEng(word);
+							response.meaning = word + " stands for " + originalword;
 							response.containedHanguel = true;
 						}
 						createdpw = createdpw + word;
@@ -789,7 +830,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = sequenceSortedWords.get(sequenceSortedWords.size() - 1);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -800,7 +843,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = sequenceSortedWords.get(thisindex);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -816,7 +861,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						String word = tokens.get(i);
 						//convert if Hanguel
 						if(HanguelHandler.isHanguel(word)) {
+							String originalword = word;
 							word = HanguelHandler.convertToEng(word);
+							response.meaning = word + " stands for " + originalword;
 							response.containedHanguel = true;
 						}
 						createdpw = createdpw + word;
@@ -832,7 +879,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = spacialSortedWords.get(spacialSortedWords.size() - 1);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -843,7 +892,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = spacialSortedWords.get(thisindex);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -859,7 +910,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						String word = tokens.get(i);
 						//convert if Hanguel
 						if(HanguelHandler.isHanguel(word)) {
+							String originalword = word;
 							word = HanguelHandler.convertToEng(word);
+							response.meaning = word + " stands for " + originalword;
 							response.containedHanguel = true;
 						}
 						createdpw = createdpw + word;
@@ -875,7 +928,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = yearSortedWords.get(yearSortedWords.size() - 1);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -886,7 +941,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 							String word = yearSortedWords.get(thisindex);
 							//convert if Hanguel
 							if(HanguelHandler.isHanguel(word)) {
+								String originalword = word;
 								word = HanguelHandler.convertToEng(word);
+								response.meaning = word + " stands for " + originalword;
 								response.containedHanguel = true;
 							}
 							createdpw = createdpw + word;
@@ -902,7 +959,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						String word = tokens.get(i);
 						//convert if Hanguel
 						if(HanguelHandler.isHanguel(word)) {
+							String originalword = word;
 							word = HanguelHandler.convertToEng(word);
+							response.meaning = word + " stands for " + originalword;
 							response.containedHanguel = true;
 						}
 						createdpw = createdpw + word;
@@ -915,7 +974,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 					String word = tokens.get(i);
 					//convert if Hanguel
 					if(HanguelHandler.isHanguel(word)) {
+						String originalword = word;
 						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
 						response.containedHanguel = true;
 					}
 					createdpw = createdpw + word;
@@ -937,7 +998,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			}
 			
 			//return createdpw only if its entropy is higher than original, and higher than or equal to minEntropy
-			if ((entropyAfter > entropyBefore) && (entropyAfter >= minEntropy)) {
+			// and satisfies length requirement
+			if ((entropyAfter > entropyBefore) && (entropyAfter >= minEntropy) && (createdpw.length() <= maxLength)) {
 				System.out.println("entropyAfter = " + entropyAfter);
 				generatedPWs.add(createdpw);
 				break;
@@ -956,6 +1018,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						add(new Label("Specified entropy could not be met"));
 						setVisible(true);
 					}
+			
 					break;
 				}
 				
