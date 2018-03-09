@@ -7,6 +7,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,8 +57,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private Map<String, Integer> sortedDic;
 	private boolean numLoopslblset, currentLooplblset, generatelblset, entropybeforelblset, btnAbortset, abortlblset = false;
 	private Label numLoopslbl, currentLooplbl;
-	private Label minentropylbl = new Label("Enter minimum zxcvbn entropy password must have");
-	private TextField tfminEntropy = new TextField("", 2);
+	//private Label minentropylbl = new Label("Enter minimum zxcvbn entropy password must have");
+	//private TextField tfminEntropy = new TextField("", 2);
 	
 	private Checkbox randomCheckbox = new Checkbox("try random combination");
 	
@@ -112,9 +114,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		userInputPW.setEditable(true);
 		add(userInputPW);
 	
-		add(minentropylbl); // "super" Frame adds an anonymous Label
-		tfminEntropy.setEditable(true);
-		add(tfminEntropy);
+		//add(minentropylbl); // "super" Frame adds an anonymous Label
+		//tfminEntropy.setEditable(true);
+		//add(tfminEntropy);
 		
 		add(maxPWlenlbl);
 		tfpwMaxLen.setEditable(true);
@@ -156,13 +158,13 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	@Override
 	public void itemStateChanged(ItemEvent evt) {
 		 if (evt.getStateChange() == ItemEvent.SELECTED) {
-		       minentropylbl.setVisible(false);
-		       tfminEntropy.setVisible(false);
+		       //minentropylbl.setVisible(false);
+		       //tfminEntropy.setVisible(false);
 		       maxPWlenlbl.setVisible(false);
 		       tfpwMaxLen.setVisible(false);
 		    } else {
-		    	minentropylbl.setVisible(true);
-			    tfminEntropy.setVisible(true);
+		    	//minentropylbl.setVisible(true);
+			    //tfminEntropy.setVisible(true);
 			    maxPWlenlbl.setVisible(true);
 			    tfpwMaxLen.setVisible(true);
 		    }
@@ -209,28 +211,37 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			// }
 
 			String inputPW = userInputPW.getText();
-			GeneratedPW fixedPW = fixPassword(inputPW);
+			
+			GeneratedPW fixedPW;
+			//if inputPW is strong enough, just set this password for the first one
+			if (RequirementChecker.strongEnough(inputPW)) {
+				fixedPW = new GeneratedPW(inputPW, false, "");
+				
+			}
+			else {
+				fixedPW = fixPassword(inputPW);
+			}
 			tfFixedPW1.setText(fixedPW.password);
 			//if(fixedPW.containedHanguel)
 				//add(new Label("PW 1 meaning : " + fixedPW.meaning));
 			Double pw1entropy = getEntropy(fixedPW.password);
-			entropylbl1.setText("PW 1 entropy: " + pw1entropy);
+			entropylbl1.setText("PW 1 number of guesses: " + Math.pow(2, pw1entropy));
 			GeneratedPW fixedPW2 = fixPassword(inputPW);
 			tfFixedPW2.setText(fixedPW2.password);
 			//if(fixedPW2.containedHanguel)
 				//add(new Label("PW 2 meaning : " + fixedPW2.meaning));
 			Double pw2entropy = getEntropy(fixedPW2.password);
-			entropylbl2.setText("PW 2 entropy: " + pw2entropy);
+			entropylbl2.setText("PW 2 number of guesses: " + Math.pow(2, pw2entropy));
 			GeneratedPW fixedPW3 = fixPassword(inputPW);
 			tfFixedPW3.setText(fixedPW3.password);
 			//if(fixedPW3.containedHanguel)
 				//add(new Label("PW 3 meaning : " + fixedPW3.meaning));
 			setVisible(true);
 			Double pw3entropy = getEntropy(fixedPW3.password);
-			entropylbl3.setText("PW 3 entropy: " + pw3entropy);
+			entropylbl3.setText("PW 3 number of guesses: " + Math.pow(2, pw3entropy));
 
 			Result result = subgui.nbvcxz.estimate(inputPW);
-			Double entropyBefore = result.getEntropy();
+			BigDecimal guessesBefore = result.getGuesses();
 			
 			if(fixedPW.containedHanguel || fixedPW2.containedHanguel || fixedPW3.containedHanguel) {
 				HanguelHandler.printToHanguelMeaningtxt(fixedPW, fixedPW2, fixedPW3);
@@ -239,7 +250,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 			}
 
 			if (!entropybeforelblset) {
-				entropyBeforelbl = new Label("Password you entered has an entropy of " + entropyBefore);
+				entropyBeforelbl = new Label("Password you entered requires " + guessesBefore + " guesses");
 
 				// addElement(entropyBeforelbl);
 				add(entropyBeforelbl);
@@ -247,7 +258,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 				entropybeforelblset = true;
 
 			} else {
-				entropyBeforelbl.setText("Password you entered has an entropy of " + entropyBefore);
+				entropyBeforelbl.setText("Password you entered requires " + guessesBefore + " guesses");
 				setVisible(true);
 
 			}
@@ -303,10 +314,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	
 	
 	private GeneratedPW createPWgivenPatternRandomly(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
-		GeneratedPW response = new GeneratedPW();
-		response.meaning = "";
-		response.containedHanguel = false;
-		response.password = "";
+		GeneratedPW response = new GeneratedPW("", false, "");
 		String createdpw = "";
 		// int minEntropy = Integer.parseInt(tfminEntropy.getText());
 		// int maxLength = Integer.parseInt(tfpwMaxLen.getText());
@@ -635,6 +643,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		//
 
 		System.out.println("entropyAfter = " + entropyAfter);
+		System.out.println("Number of Guesses = " + result.getGuesses());
 		// generatedPWs.add(createdpw);
 
 		response.password =createdpw;
@@ -880,12 +889,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	
 	//REQUIRES:  patterns and tokens must have same number of elements
 	private GeneratedPW createPWgivenPattern(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
-		GeneratedPW response = new GeneratedPW();
-		response.meaning = "";
-		response.containedHanguel = false;
-		response.password = "";
+		GeneratedPW response = new GeneratedPW("", false, "");
 		String createdpw = "";
-		int minEntropy = Integer.parseInt(tfminEntropy.getText());
+		//int minEntropy = Integer.parseInt(tfminEntropy.getText());
 		int maxLength = Integer.parseInt(tfpwMaxLen.getText());
 		
 		//find words with given pattern if they were not found before
@@ -1366,9 +1372,17 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 				continue;
 			}
 			
-			//return createdpw only if its entropy is higher than original, and higher than or equal to minEntropy
-			// and satisfies length requirement
-			if ((entropyAfter > entropyBefore) && (entropyAfter >= minEntropy) && (createdpw.length() <= maxLength)) {
+			//return createdpw only if...
+			Double guessesBefore = Math.pow(2, entropyBefore);
+			BigDecimal guessesBeforeinBD = new BigDecimal(guessesBefore.isInfinite() ? Double.MAX_VALUE : guessesBefore).setScale(0, RoundingMode.HALF_UP);
+			BigDecimal guessesAfterinBD = result.getGuesses();
+			
+			Double threshold = Math.pow(10, 12);
+			BigDecimal thresholdinBD = new BigDecimal(threshold.isInfinite() ? Double.MAX_VALUE : threshold).setScale(0, RoundingMode.HALF_UP);
+			
+			boolean guessesincreased = (guessesAfterinBD.compareTo(guessesBeforeinBD) > -1);
+			
+			if ((guessesincreased) && (guessesAfterinBD.compareTo(thresholdinBD) > -1) && (createdpw.length() <= maxLength)) {
 				System.out.println("entropyAfter = " + entropyAfter);
 				generatedPWs.add(createdpw);
 				break;
@@ -1382,9 +1396,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 						createdpw = createdpw + tokens.get(i); 
 					}
 					
-					//inform user if achieving minEntropy was not possible
-					if (entropyBefore < minEntropy) {
-						add(new Label("Specified entropy could not be met"));
+					//inform user if achieving min guesses was not possible
+					if (guessesBeforeinBD.compareTo(thresholdinBD) == -1) {
+						add(new Label("Min guesses requirement could not be met"));
 						setVisible(true);
 					}
 			
