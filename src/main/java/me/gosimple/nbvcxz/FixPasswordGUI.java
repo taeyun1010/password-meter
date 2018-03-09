@@ -3,8 +3,11 @@ package me.gosimple.nbvcxz;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,7 +29,7 @@ import me.gosimple.nbvcxz.matching.match.Match;
 import me.gosimple.nbvcxz.resources.Dictionary;
 import me.gosimple.nbvcxz.scoring.Result;
 
-public class FixPasswordGUI extends Frame implements ActionListener, WindowListener{
+public class FixPasswordGUI extends Frame implements ActionListener, WindowListener, ItemListener{
 	
 	private SubGUIProgram subgui;
 	private String userdata;
@@ -37,6 +40,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 	private TextField userInputPW = new TextField("", 40);
 	private Button btnSubmit = new Button("Submit");
 	private Button btnAbort;
+	private Label inputpwlbl = new Label("Enter your password");
 	private Label fixedpwlbl1 = new Label("Fixed PW 1");
 	private Label fixedpwlbl2 = new Label("Fixed PW 2");
 	private Label fixedpwlbl3 = new Label("Fixed PW 3");
@@ -103,6 +107,8 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		
 		setLayout(new FlowLayout());
 
+		add(inputpwlbl);
+		
 		userInputPW.setEditable(true);
 		add(userInputPW);
 	
@@ -114,6 +120,9 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		tfpwMaxLen.setEditable(true);
 		add(tfpwMaxLen);
 		
+		add(randomCheckbox);
+		
+		randomCheckbox.addItemListener(this);
 		
 		add(btnSubmit); // "super" Frame adds Button
 		btnSubmit.addActionListener(this);
@@ -144,6 +153,23 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 
 	}
 
+	@Override
+	public void itemStateChanged(ItemEvent evt) {
+		 if (evt.getStateChange() == ItemEvent.SELECTED) {
+		       minentropylbl.setVisible(false);
+		       tfminEntropy.setVisible(false);
+		       maxPWlenlbl.setVisible(false);
+		       tfpwMaxLen.setVisible(false);
+		    } else {
+		    	minentropylbl.setVisible(true);
+			    tfminEntropy.setVisible(true);
+			    maxPWlenlbl.setVisible(true);
+			    tfpwMaxLen.setVisible(true);
+		    }
+		
+	}
+
+	
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 		//TODO: support abort button
@@ -267,10 +293,353 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
             patterns.add(patternName);
         }
 		
-		
-		fixedPW = createPWgivenPattern(patterns, tokens, entropyBefore);
+		if(randomCheckbox.getState())
+			fixedPW = createPWgivenPatternRandomly(patterns, tokens, entropyBefore);
+		else
+			fixedPW = createPWgivenPattern(patterns, tokens, entropyBefore);
 		
 		return fixedPW;
+	}
+	
+	
+	private GeneratedPW createPWgivenPatternRandomly(ArrayList<String> patterns, ArrayList<String> tokens, Double entropyBefore) {
+		GeneratedPW response = new GeneratedPW();
+		response.meaning = "";
+		response.containedHanguel = false;
+		response.password = "";
+		String createdpw = "";
+		// int minEntropy = Integer.parseInt(tfminEntropy.getText());
+		// int maxLength = Integer.parseInt(tfpwMaxLen.getText());
+
+		// find words with given pattern if they were not found before
+		for (int i = 0; i < patterns.size(); i++) {
+			switch (patterns.get(i)) {
+			case "DateMatch":
+				// if (datePatterns.size() == 0)
+				if (dateSortedWords.isEmpty())
+					findWordsWithPattern("DateMatch");
+				break;
+			case "DictionaryMatch":
+				// if (dictionaryPatterns.size() == 0)
+				if (dictionarySortedWords.isEmpty())
+					findWordsWithPattern("DictionaryMatch");
+				break;
+			case "RepeatMatch":
+				// if (repeatPatterns.size() == 0)
+				if (repeatSortedWords.isEmpty())
+					findWordsWithPattern("RepeatMatch");
+				break;
+			case "SeparatorMatch":
+				/// if (separatorPatterns.size() == 0)
+				if (separatorSortedWords.isEmpty())
+					findWordsWithPattern("SeparatorMatch");
+				break;
+			case "SequenceMatch":
+				// if (sequencePatterns.size() == 0)
+				if (sequenceSortedWords.isEmpty())
+					findWordsWithPattern("SequenceMatch");
+				break;
+			case "SpacialMatch":
+				// if (spacialPatterns.size() == 0)
+				if (spacialSortedWords.isEmpty())
+					findWordsWithPattern("SpacialMatch");
+				break;
+			case "YearMatch":
+				// if (yearPatterns.size() == 0)
+				if (yearSortedWords.isEmpty())
+					findWordsWithPattern("YearMatch");
+				break;
+			// case "BruteForceMatch":
+			// if (bruteforcePatterns.size() == 0)
+			// findWordsWithPattern("BruteForceMatch");
+			// break;
+
+			}
+		}
+
+		// //maximum number of loops possible
+		// int maxNumLoops = maximumCombinations(patterns);
+		// if (numLoopslblset == true) {
+		// numLoopslbl.setText("Max Number of loops to be iterated : " + maxNumLoops);
+		// }
+		//
+		// else {
+		// numLoopslbl = new Label("Max Number of loops to be iterated : " +
+		// maxNumLoops);
+		// add(numLoopslbl);
+		// setVisible(true);
+		// numLoopslblset = true;
+		// }
+		// int loopcounter = -1;
+		//
+		// if (currentLooplblset == true) {
+		// currentLooplbl.setText("currently doing 0th loop");
+		// }
+		// else {
+		// currentLooplbl = new Label("currently doing 0th loop");
+		// add(currentLooplbl);
+		// setVisible(true);
+		// currentLooplblset = true;
+		// }
+		//
+		// //these indexes will be used to keep track of used words in given pattern
+		// List<Integer> indexes = new ArrayList<Integer>();
+		// for (int i=0; i< patterns.size(); i++) {
+		//
+		// indexes.add(0);
+		//
+		// }
+		// //
+		// loopcounter++;
+		// currentLooplbl.setText("currently doing " + loopcounter + "th loop");
+		// change createdpw back to empty string
+		createdpw = "";
+		response.meaning = "";
+		response.containedHanguel = false;
+		response.password = "";
+
+		// //to tell if index was incremented so we do not increment the index twice in
+		// a single loop
+		// boolean incremented = false;
+		//
+		// //to tell if all possible passwords are considered
+		// boolean allConsidered = true;
+		//
+		// fill createdpw with given patterns, fill with the most frequent ones, for now
+		for (int i = 0; i < patterns.size(); i++) {
+			// tells if no word satisfying the requirement is found
+			// boolean notFound = false;
+			// int patternsize;
+
+			// Integer thisindex = indexes.get(i);
+
+			switch (patterns.get(i)) {
+
+			case "DateMatch":
+
+				if (!dateSortedWords.isEmpty()) {
+					final SecureRandom rnd = new SecureRandom();
+					final int high = dateSortedWords.size();
+					String word = dateSortedWords.get(rnd.nextInt(high));
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+
+				} else {
+					String word = tokens.get(i);
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+				}
+				break;
+			case "DictionaryMatch":
+
+				if (!dictionarySortedWords.isEmpty()) {
+					final SecureRandom rnd = new SecureRandom();
+					final int high = dictionarySortedWords.size();
+					String word = dictionarySortedWords.get(rnd.nextInt(high));
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+
+				} else {
+					String word = tokens.get(i);
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+				}
+				break;
+			case "RepeatMatch":
+
+				if (!repeatSortedWords.isEmpty()) {
+					final SecureRandom rnd = new SecureRandom();
+					final int high = repeatSortedWords.size();
+					String word = repeatSortedWords.get(rnd.nextInt(high));
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+
+				} else {
+					String word = tokens.get(i);
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+				}
+				break;
+			case "SeparatorMatch":
+
+				if (!separatorSortedWords.isEmpty()) {
+					final SecureRandom rnd = new SecureRandom();
+					final int high = separatorSortedWords.size();
+					String word = separatorSortedWords.get(rnd.nextInt(high));
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+
+				} else {
+					String word = tokens.get(i);
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+				}
+				break;
+			case "SequenceMatch":
+
+				if (!sequenceSortedWords.isEmpty()) {
+					final SecureRandom rnd = new SecureRandom();
+					final int high = sequenceSortedWords.size();
+					String word = sequenceSortedWords.get(rnd.nextInt(high));
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+
+				} else {
+					String word = tokens.get(i);
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+				}
+				break;
+			case "SpacialMatch":
+
+				if (!spacialSortedWords.isEmpty()) {
+					final SecureRandom rnd = new SecureRandom();
+					final int high = spacialSortedWords.size();
+					String word = spacialSortedWords.get(rnd.nextInt(high));
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+
+				} else {
+					String word = tokens.get(i);
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+				}
+				break;
+			case "YearMatch":
+
+				if (!yearSortedWords.isEmpty()) {
+					final SecureRandom rnd = new SecureRandom();
+					final int high = yearSortedWords.size();
+					String word = yearSortedWords.get(rnd.nextInt(high));
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+
+				} else {
+					String word = tokens.get(i);
+					// convert if Hanguel
+					if (HanguelHandler.isHanguel(word)) {
+						String originalword = word;
+						word = HanguelHandler.convertToEng(word);
+						response.meaning = word + " stands for " + originalword;
+						response.containedHanguel = true;
+					}
+					createdpw = createdpw + word;
+				}
+				break;
+			case "BruteForceMatch":
+
+				// if bruteforcematch just add what user input
+				String word = tokens.get(i);
+				// convert if Hanguel
+				if (HanguelHandler.isHanguel(word)) {
+					String originalword = word;
+					word = HanguelHandler.convertToEng(word);
+					response.meaning = word + " stands for " + originalword;
+					response.containedHanguel = true;
+				}
+				createdpw = createdpw + word;
+				break;
+
+			}
+		}
+
+		Result result = subgui.nbvcxz.estimate(createdpw);
+		Double entropyAfter = result.getEntropy();
+		// if this pw was already generated before
+		// if (!generatedPWs.isEmpty()) {
+		// if (generatedPWs.contains(suggestedPW)) {
+		// continue;
+		// }
+		// }
+		// if ((!allConsidered) && generatedPWs.contains(createdpw)) {
+		// continue;
+		// }
+		//
+
+		System.out.println("entropyAfter = " + entropyAfter);
+		// generatedPWs.add(createdpw);
+
+		response.password =createdpw;
+		return response;
+		
 	}
 	
 	//determine given pattern of words in user data dictionary and store
@@ -1111,6 +1480,7 @@ public class FixPasswordGUI extends Frame implements ActionListener, WindowListe
 		
 	}
 
+	
 
 
 }
